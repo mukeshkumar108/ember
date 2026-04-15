@@ -1,8 +1,9 @@
 import { CLERK_PUBLISHABLE_KEY } from "@/config";
-import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/clerk-expo";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +37,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       publishableKey={CLERK_PUBLISHABLE_KEY}
       tokenCache={tokenCache}
     >
+      <ClerkLoading>
+        <View style={styles.bootLoader}>
+          <ActivityIndicator size="large" />
+        </View>
+      </ClerkLoading>
       <ClerkLoaded>
         <QueryClientProvider client={queryClient}>
           {children}
@@ -44,3 +50,12 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     </ClerkProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  bootLoader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+});

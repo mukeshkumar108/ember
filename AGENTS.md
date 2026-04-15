@@ -11,6 +11,7 @@ Ember is a **non-product-specific mobile shell** for the [forgingfire](https://g
     - `src/api/`: Typed fetch client and DTOs only.
     - `src/hooks/`: Data fetching (TanStack Query) and local state hooks.
     - `src/components/ui/`: Core, stateless UI primitives.
+    - `src/components/auth/`: Reusable auth presentation components. Keep auth logic in `src/hooks/auth/`.
 3. **API Discipline**: 
     - Never use `fetch` directly. Always use the authenticated `request` from `src/api/client.ts` via the `useApi` hook.
     - All API responses must have a corresponding Zod schema or TypeScript interface (even if placeholder).
@@ -19,7 +20,7 @@ Ember is a **non-product-specific mobile shell** for the [forgingfire](https://g
 
 ## Phase-1 Scope (Current)
 - Public/Protected route grouping.
-- Clerk Auth wiring (Sign-in/Sign-up are currently placeholders).
+- Clerk Auth wiring with functional email/password sign-in and sign-up.
 - Authenticated `GET /api/v1/me` bootstrap flow.
 - Bottom-tab shell (Home, Explore, Settings).
 - Onboarding status guard.

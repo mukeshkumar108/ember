@@ -1,4 +1,5 @@
 import { useAuth, useUser } from '@clerk/clerk-expo';
+export * from './clerk-errors';
 
 /**
  * Custom hook to provide common auth-related helpers.
