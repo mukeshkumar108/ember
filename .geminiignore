@@ -1,0 +1,9 @@
+node_modules/
+.expo/
+.next/
+dist/
+build/
+*.log
+pnpm-lock.yaml
+package-lock.json
+src/assets/

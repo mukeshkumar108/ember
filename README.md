@@ -1,50 +1,43 @@
-# Welcome to your Expo app 👋
+# Ember Shell (Expo Foundation)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Ember is a mobile frontend foundation for the [forgingfire](https://github.com/forgingfire) backend ecosystem.
 
-## Get started
+## Maturity Statement
+**Status**: Foundation-Only (v0.1.0-alpha)  
+**Verification**: Unverified (Plumbing complete, backend communication untested)
 
-1. Install dependencies
+Ember is a **non-product shell** for rapid mobile experimentation. It is not an application but a pre-configured architecture of routing, authentication, and authenticated API patterns.
 
-   ```bash
-   npm install
-   ```
+## Current Maturity (Phase-1 Scaffolding)
+- [x] **File-based Routing**: Expo Router grouping for Public and Protected routes.
+- [x] **Clerk Auth**: Initialized with `expo-secure-store`. **(Forms are placeholders)**.
+- [x] **API Client**: Typed fetch client that auto-attaches Clerk tokens.
+- [x] **Data Persistence**: TanStack Query and state-driven route guards.
+- [x] **Onboarding Shell**: Guarded redirection logic for new users.
 
-2. Start the app
+## Directory Structure
+- `app/`: Routing and layouts **only**.
+- `src/api/`: Typed API client and DTOs.
+- `src/auth/`: Clerk initialization and helpers.
+- `src/components/ui/`: Stateless, themed UI primitives.
+- `src/hooks/`: Data fetching and business logic hooks.
+- `src/styles/`: Centralized theme and global styling.
 
-   ```bash
-   npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
+1.  **Prepare Environment**:
+    Create a `.env` file from `.env.example` and add your Clerk key:
+    ```bash
+    EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+    ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+2.  **Install & Start**:
+    ```bash
+    pnpm install
+    pnpm ios   # or android
+    ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Operational Docs (For Agents & Humans)
+- [AGENTS.md](./AGENTS.md): Architectural constraints and handover format.
+- [CURRENT_STATE.md](./CURRENT_STATE.md): Honest assessment of what is broken or unverified.
+- [CHANGELOG.md](./CHANGELOG.md): History of implementation and unverified assumptions.
