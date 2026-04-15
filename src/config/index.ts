@@ -4,7 +4,10 @@ import { Platform } from 'react-native';
  * Backend API URL based on platform.
  * forgingfire backend assumptions.
  */
-export const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
+const defaultApiUrl =
+  Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
+
+export const API_URL = process.env.EXPO_PUBLIC_API_URL || defaultApiUrl;
 
 /**
  * Clerk configuration.

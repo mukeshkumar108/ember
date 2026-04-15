@@ -1,32 +1,30 @@
 # Project Status Report (Operationally Honest)
 
 **Project**: Ember Shell  
-**Current Commit**: Backend Contract Alignment  
-**Maturity**: 0.1.0-alpha (Foundation Wired)
+**Checkpoint**: Foundation Hardening Pass (2026-04-15)  
+**Maturity**: 0.1.x foundation baseline
 
-## Implementation Summary
+## What Is Solid
+- **Routing shell**: Public and protected route groups are wired and stable.
+- **Auth wiring**: Clerk Provider + SecureStore token cache are in place.
+- **Bootstrap contract shape**: `/api/v1/me` is typed as `{ success, data, error }` and unwrapped through `useMe`.
+- **Protected guard behavior**: Protected layout now blocks access when bootstrap fails and exposes retry/sign-out controls.
+- **Foundation lint health**: Current warnings in core starter files are cleared.
 
-Ember is a **wired skeleton** now aligned with the verified `forgingfire` backend contract.
+## What Is Intentionally Placeholder
+- `app/(public)/sign-in.tsx` and `app/(public)/sign-up.tsx` are still placeholder UIs (no real credential flow yet).
+- `app/(protected)/onboarding/index.tsx` is still a placeholder completion step.
+- `src/hooks/use-device-registration.ts` is reserved for later device sync and currently no-op.
 
-### Operational Modules
-- **Routing**: Expo Router `app/(public)` and `app/(protected)` groups are wired.
-- **Auth**: Clerk integration is initialized. **Note: Sign-in/Sign-up forms are UI placeholders.**
-- **API**: A typed client exists in `src/api/client.ts`. It correctly injects Clerk tokens.
-- **Data Fetching**: TanStack Query is configured.
-- **Bootstrapping**: `useMe` is aligned with the `{ success, data, error }` contract and unwraps the nested `User` object.
-- **DTOs**: Formalized `ApiResponse<T>` and `User` types in `src/api/types.ts`.
+## Active Assumptions
+- Backend serves `GET /api/v1/me` at `${EXPO_PUBLIC_API_URL}/api/v1/me` for authenticated users.
+- `User.onboarding.completed` remains the canonical field for onboarding guard redirects.
+- Clerk tokens used by `getToken()` are accepted by forgingfire as Bearer auth.
 
-## Immediate Priorities
-1. **Implement Auth Forms**: Replace placeholders in `app/(public)/sign-in.tsx` and `sign-up.tsx` with functional Clerk components.
-2. **Onboarding logic**: Implement the multi-step flow in `app/(protected)/onboarding/index.tsx`.
-3. **Verify Error Handling**: Refine how `ApiError` from `src/api/client.ts` is surfaced in the UI.
+## Current Risks
+- **No functional auth screens yet**: Sign-in/up are navigational placeholders only.
+- **No onboarding completion API wired**: completing onboarding currently only routes to tabs.
+- **Guard UX depends on backend availability**: if API URL/session is wrong, protected users now see explicit bootstrap failure state (expected), but this still needs productized copy and recovery flow.
 
-## Critical Assumptions & Unresolved Risks
-- **Live Verification**: While the types are aligned with the contract, live communication with the `forgingfire` backend is still pending (needs valid Clerk session).
-- **Assumed Endpoints**: The app assumes `/api/v1/me` and `/api/v1/devices` exist and are accessible.
-- **Clerk Setup**: The app will not load beyond the Splash screen if `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` is invalid or missing.
-- **Routing Logic**: The onboarding guard in `app/(protected)/_layout.tsx` is unverified and may cause redirect loops if the backend state is inconsistent.
-
-## Infrastructure Risks
-- **Type Safety**: Some `any` types still exist in `src/api/client.ts` and `src/hooks/use-api.ts`.
-- **Error Handling**: API error states are basic and do not yet handle specific HTTP status codes (401, 403, 500) with custom UI.
+## Immediate Next Task
+Implement real Clerk sign-in/sign-up forms in `app/(public)/` while preserving current public/protected routing boundaries.

@@ -14,6 +14,7 @@ Ember is a **non-product-specific mobile shell** for the [forgingfire](https://g
 3. **API Discipline**: 
     - Never use `fetch` directly. Always use the authenticated `request` from `src/api/client.ts` via the `useApi` hook.
     - All API responses must have a corresponding Zod schema or TypeScript interface (even if placeholder).
+    - API base URL must come from `EXPO_PUBLIC_API_URL` (with local default fallback in `src/config/index.ts`).
 4. **Auth Integrity**: Do not modify `app/(protected)/_layout.tsx` (the root guard) unless explicitly fixing a routing bug.
 
 ## Phase-1 Scope (Current)
@@ -33,6 +34,7 @@ Ember is a **non-product-specific mobile shell** for the [forgingfire](https://g
 - **Surgical Edits**: Prefer `replace` over `write_file` for existing logic.
 - **No Refactoring**: Do not refactor code outside the immediate task scope.
 - **Verification**: Always verify that path aliases (`@/*`) are used for internal imports.
+- **Quality Gate**: Run `pnpm lint` after each task-level change set and report warnings/errors honestly.
 
 ## Handover Reporting Format
 When completing a task, you **must** report:
@@ -41,3 +43,4 @@ When completing a task, you **must** report:
 3. **Assumptions Made**: List any DTO or backend assumptions.
 4. **Unresolved Risks**: List any deferred tasks or potential breaking points.
 5. **Next Step**: The single most logical task for the next agent.
+6. **Verification Run**: Commands executed (`pnpm lint`, smoke checks) and outcomes.

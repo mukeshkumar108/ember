@@ -1,12 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useSignUp } from '@clerk/clerk-expo';
-import { useRouter, Link } from 'expo-router';
+import { Link } from 'expo-router';
 
 export default function SignUpScreen() {
-  const { signUp, isLoaded, setActive } = useSignUp();
-  const router = useRouter();
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Account</Text>

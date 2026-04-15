@@ -1,15 +1,8 @@
-import { useSignIn } from "@clerk/clerk-expo";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function SignInScreen() {
-  const { signIn, setActive, isLoaded } = useSignIn();
-  const router = useRouter();
-
-  // Basic Clerk sign in flow for email/password or SSO
-  // For this starter, we'll keep it minimal.
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Ember</Text>

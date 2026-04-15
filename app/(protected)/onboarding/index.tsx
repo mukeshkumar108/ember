@@ -1,20 +1,14 @@
-import { useApi } from "@/hooks/use-api";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { request } = useApi();
 
-  const handleComplete = async () => {
-    try {
-      // TODO: Call API to complete onboarding
-      // await request('/api/v1/onboarding/complete', { method: 'POST' });
-      router.replace("/(protected)/(tabs)");
-    } catch (err) {
-      console.error("Failed to complete onboarding", err);
-    }
+  const handleComplete = () => {
+    // TODO: Call API to complete onboarding
+    // await request('/api/v1/onboarding/complete', { method: 'POST' });
+    router.replace("/(protected)/(tabs)");
   };
 
   return (

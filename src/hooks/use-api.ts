@@ -1,12 +1,12 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { useCallback } from 'react';
-import { request } from '@/api/client';
+import { RequestConfig, request } from '@/api/client';
 
 export function useApi() {
   const { getToken } = useAuth();
 
   const apiRequest = useCallback(
-    async <T>(path: string, config: any = {}) => {
+    async <T>(path: string, config: RequestConfig = {}) => {
       const token = await getToken();
       return request<T>(path, { ...config, token });
     },

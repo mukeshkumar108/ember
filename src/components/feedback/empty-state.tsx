@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { IconSymbol } from '../ui/icon-symbol';
+import type { ComponentProps } from 'react';
+
+type IconName = ComponentProps<typeof IconSymbol>['name'];
 
 interface EmptyStateProps {
   title: string;
   description?: string;
-  iconName?: string;
+  iconName?: IconName;
 }
 
 export function EmptyState({ title, description, iconName = 'tray' }: EmptyStateProps) {

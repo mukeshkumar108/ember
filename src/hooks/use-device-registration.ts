@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-expo';
-import { Platform } from 'react-native';
 
 /**
  * Placeholder hook for device registration.
@@ -16,7 +15,7 @@ export function useDeviceRegistration() {
       // 2. Fetch unique device identifier and/or push token.
       // 3. Register device with forgingfire via POST /api/v1/devices.
       
-      console.log(`[useDeviceRegistration] User is signed in on ${Platform.OS}. Device registration deferred.`);
+      // No-op for now; this hook reserves bootstrap space for future device sync.
     }
   }, [isLoaded, isSignedIn]);
 }

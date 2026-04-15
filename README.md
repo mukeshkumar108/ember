@@ -1,43 +1,45 @@
 # Ember Shell (Expo Foundation)
 
-Ember is a mobile frontend foundation for the [forgingfire](https://github.com/forgingfire) backend ecosystem.
+Ember is a reusable mobile frontend shell for the [forgingfire](https://github.com/forgingfire) backend. It is intentionally product-agnostic and focuses on auth, routing, bootstrap, and reusable app structure.
 
-## Maturity Statement
-**Status**: Foundation-Only (v0.1.0-alpha)  
-**Verification**: Unverified (Plumbing complete, backend communication untested)
+## Maturity
+**Status**: Foundation checkpoint (Phase 1)  
+**Focus**: Reliable shell behavior over feature breadth
 
-Ember is a **non-product shell** for rapid mobile experimentation. It is not an application but a pre-configured architecture of routing, authentication, and authenticated API patterns.
+Implemented now:
+- Public/protected route grouping via Expo Router.
+- Clerk + SecureStore auth wiring.
+- Typed API client (`src/api/client.ts`) and `useMe` bootstrap hook.
+- Protected route guard with onboarding gate.
+- Bottom tab shell scaffold (Home, Explore, Settings).
 
-## Current Maturity (Phase-1 Scaffolding)
-- [x] **File-based Routing**: Expo Router grouping for Public and Protected routes.
-- [x] **Clerk Auth**: Initialized with `expo-secure-store`. **(Forms are placeholders)**.
-- [x] **API Client**: Typed fetch client that auto-attaches Clerk tokens.
-- [x] **Data Persistence**: TanStack Query and state-driven route guards.
-- [x] **Onboarding Shell**: Guarded redirection logic for new users.
+Still intentionally deferred:
+- Functional sign-in/sign-up forms.
+- Real onboarding completion flow/API wiring.
+- Device registration API integration.
 
-## Directory Structure
-- `app/`: Routing and layouts **only**.
-- `src/api/`: Typed API client and DTOs.
-- `src/auth/`: Clerk initialization and helpers.
-- `src/components/ui/`: Stateless, themed UI primitives.
-- `src/hooks/`: Data fetching and business logic hooks.
-- `src/styles/`: Centralized theme and global styling.
+## Architecture Boundaries
+- `app/`: routing and layouts only.
+- `src/api/`: typed API client + DTOs.
+- `src/hooks/`: data/bootstrap hooks.
+- `src/components/ui/`: reusable stateless primitives.
 
-## Getting Started
+## Setup
+1. Create `.env` from `.env.example`.
+2. Set required variables:
+```bash
+EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+EXPO_PUBLIC_API_URL=http://localhost:4000
+```
+3. Install and run:
+```bash
+pnpm install
+pnpm ios      # or pnpm android / pnpm web
+```
 
-1.  **Prepare Environment**:
-    Create a `.env` file from `.env.example` and add your Clerk key:
-    ```bash
-    EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-    ```
+For Android emulator local backend access, set `EXPO_PUBLIC_API_URL=http://10.0.2.2:4000`.
 
-2.  **Install & Start**:
-    ```bash
-    pnpm install
-    pnpm ios   # or android
-    ```
-
-## Operational Docs (For Agents & Humans)
-- [AGENTS.md](./AGENTS.md): Architectural constraints and handover format.
-- [CURRENT_STATE.md](./CURRENT_STATE.md): Honest assessment of what is broken or unverified.
-- [CHANGELOG.md](./CHANGELOG.md): History of implementation and unverified assumptions.
+## Operational Docs
+- [AGENTS.md](./AGENTS.md): architecture and agent handover rules.
+- [CURRENT_STATE.md](./CURRENT_STATE.md): honest current status and risks.
+- [CHANGELOG.md](./CHANGELOG.md): incremental checkpoint history.
