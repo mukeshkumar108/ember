@@ -1,9 +1,11 @@
 import { CLERK_PUBLISHABLE_KEY } from "@/config";
+import { ToastProvider } from "@/components/ui";
 import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/clerk-expo";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { tokens } from "@/styles/tokens";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,7 +46,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       </ClerkLoading>
       <ClerkLoaded>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <ToastProvider>{children}</ToastProvider>
         </QueryClientProvider>
       </ClerkLoaded>
     </ClerkProvider>
@@ -56,6 +58,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: tokens.colors.background,
   },
 });

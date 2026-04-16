@@ -1,33 +1,67 @@
-# Project Status Report (Operationally Honest)
+# Project Status Report
 
-**Project**: Ember Shell  
-**Checkpoint**: Onboarding Completion Wiring (2026-04-16)  
-**Maturity**: 0.1.x foundation baseline
+**Project**: Ember Shell
+**Checkpoint**: Design System v2 — Premium Overhaul (2026-04-16)
+**Maturity**: 1.1.0
+
+---
 
 ## What Is Solid
+
+### Foundation
 - **Routing shell**: Public and protected route groups are wired and stable.
 - **Auth wiring**: Clerk Provider + SecureStore token cache are in place.
-- **Public auth flow**: Email/password sign-in and sign-up are implemented with proper Clerk session activation.
-- **Verification handling**: Sign-up verification is conditional and only triggered when Clerk requires email verification.
-- **Bootstrap contract shape**: `/api/v1/me` is typed as `{ success, data, error }` and unwrapped through `useMe`.
-- **Onboarding completion flow**: onboarding now updates backend via `PATCH /api/v1/me` then invalidates/refetches `me`.
-- **Protected guard behavior**: Protected layout now blocks access when bootstrap fails and exposes retry/sign-out controls.
-- **Onboarding exit behavior**: once onboarding is completed and `me` updates, protected layout routes the user into tabs.
-- **Foundation lint health**: Current warnings in core starter files are cleared.
-- **Startup polish**: Provider-level `ClerkLoading` state now shows intentional boot loader before auth hydration completes.
+- **Public auth flow**: Email/password sign-in and sign-up with conditional verification.
+- **Bootstrap contract**: `/api/v1/me` typed and unwrapped via `useMe`.
+- **Onboarding flow**: completes via `PATCH /api/v1/me` and routes into tabs.
+- **Protected guard**: fails closed on bootstrap failure with retry/sign-out.
+- **Account/Settings**: editable profile fields with `PATCH /api/v1/me` and `Toast` feedback.
+
+### Design System (v2)
+- **Token system**: Comprehensive `tokens.ts` — colors (primary #007AFF, semantic variants), spacing (4–64), radius (full pill support), typography (xs–3xl with lineHeight multipliers), shadow presets, animation duration/spring constants.
+- **Icon system**: `lucide-react-native` throughout. `Icon` wrapper component. Tab bar uses Lucide icons with active/inactive stroke weights.
+- **Component library** (all in `src/components/ui/`):
+  - Layout: `Screen` (header, scroll, keyboardAware), `FormScreen`, `Section`, `Card`/`PressableCard`, `Divider`
+  - Inputs: `Input` (focus ring), `TextArea`, `Select` (native ActionSheet iOS), `Checkbox` (Reanimated + haptics), `Toggle` (haptics)
+  - Actions: `Button` (primary/secondary/danger/ghost, sm/md/lg, haptics)
+  - Display: `Avatar`, `Badge`, `ListItem`, `Icon`, `Skeleton`/`SkeletonListItem`
+  - Overlays: `Sheet` (Reanimated 4, spring, swipe-to-dismiss handle), `ConfirmModal` (Reanimated spring, side-by-side buttons), `Toast` (Reanimated 4, types: info/success/warning/error)
+- **Feedback**: `LoadingState`, `ErrorState` (icon-based), `EmptyState` (optional Lucide icon)
+- **Animations**: Reanimated 4 used for Sheet, Toast, ConfirmModal, Checkbox. `react-native-gesture-handler` used for Sheet swipe handle.
+
+### Bug Fixes Applied
+- Sheet animation was 24px twitch → now proper off-screen spring entry (600px start)
+- Toast animation had same bug → fixed
+- Playground inputs hidden by keyboard → `Screen` now has `keyboardAware` prop; playground uses it
+- Input had no focus state → primary-blue border ring on focus
+- Section titles competed with page titles → now iOS-style small-caps section headers
+
+---
 
 ## What Is Intentionally Placeholder
-- `app/(protected)/onboarding/index.tsx` remains intentionally simple (single completion action, no multi-step product flow).
-- `src/hooks/use-device-registration.ts` is reserved for later device sync and currently no-op.
+- `app/(protected)/onboarding/index.tsx` — single completion action, no multi-step product flow.
+- Delete account — UI only, backend delete semantics deferred.
+- `src/hooks/use-device-registration.ts` — reserved, currently no-op.
+- `@shopify/react-native-skia` — installed for future canvas/visual features, not yet used.
+
+---
 
 ## Active Assumptions
-- Backend serves `GET /api/v1/me` at `${EXPO_PUBLIC_API_URL}/api/v1/me` for authenticated users.
-- `User.onboarding.completed` remains the canonical field for onboarding guard redirects.
-- Clerk tokens used by `getToken()` are accepted by forgingfire as Bearer auth.
+- Backend serves `GET /api/v1/me` at `${EXPO_PUBLIC_API_URL}/api/v1/me`.
+- `User.onboarding.completed` is the canonical onboarding guard field.
+- Clerk tokens are accepted by forgingfire as Bearer auth.
+
+---
 
 ## Current Risks
-- **Sign-in edge paths**: accounts requiring non-password factors (MFA/SSO-only) currently receive a generic “additional steps required” message.
-- **Guard UX depends on backend availability**: if API URL/session is wrong, protected users now see explicit bootstrap failure state (expected), but this still needs productized copy and recovery flow.
+- **Sign-in edge paths**: MFA/SSO-only accounts get a generic message.
+- **Sheet gesture inside Modal**: Swipe-to-dismiss on the handle works; full-sheet swipe may not fire reliably inside RN Modal on all Android versions. Upgrade path: portal-based sheet.
+- **Profile validation UX**: locale/timezone use curated starter lists, not searchable pickers.
+- **Dark mode**: token structure is ready (single palette object) but dark mode variants are not yet implemented.
 
-## Immediate Next Task
-Implement `POST /api/v1/devices` registration in `useDeviceRegistration` and wire it to run safely after auth bootstrap.
+---
+
+## Immediate Next Tasks
+1. Implement `POST /api/v1/devices` in `useDeviceRegistration`.
+2. Add dark mode support — token system is ready, needs a `useColorScheme`-aware token provider.
+3. Productize onboarding (multi-step flow, real fields).

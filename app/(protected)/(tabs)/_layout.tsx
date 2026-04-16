@@ -1,53 +1,90 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
-
+import { Platform, StyleSheet, View } from 'react-native';
+import { Tabs } from 'expo-router';
+import { Compass, Home, Settings } from 'lucide-react-native';
 import { HapticTab } from '@/components/ui/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { tokens } from '@/styles/tokens';
+
+const TAB_ICON_SIZE = 24;
+const TAB_ICON_STROKE = 1.75;
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: tokens.colors.primary,
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarActiveTintColor: tokens.colors.primary,
+        tabBarInactiveTintColor: tokens.colors.muted,
+        tabBarLabelStyle: styles.label,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
+            // Transparent so the native blur shows through on iOS
             position: 'absolute',
+            borderTopColor: tokens.colors.border,
+            borderTopWidth: 0.5,
           },
-          default: {},
+          default: {
+            backgroundColor: tokens.colors.background,
+            borderTopColor: tokens.colors.border,
+            borderTopWidth: 0.5,
+            elevation: 0,
+          },
         }),
+        tabBarBackground: Platform.OS !== 'ios'
+          ? () => <View style={StyleSheet.absoluteFill} />
+          : undefined,
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Home
+              size={TAB_ICON_SIZE}
+              color={color}
+              strokeWidth={focused ? 2.25 : TAB_ICON_STROKE}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Compass
+              size={TAB_ICON_SIZE}
+              color={color}
+              strokeWidth={focused ? 2.25 : TAB_ICON_STROKE}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Settings
+              size={TAB_ICON_SIZE}
+              color={color}
+              strokeWidth={focused ? 2.25 : TAB_ICON_STROKE}
+            />
+          ),
         }}
       />
-      <Tabs.Screen
-        name="playground"
-        options={{
-          href: null,
-        }}
-      />
+      {/* Internal routes — hidden from tab bar */}
+      <Tabs.Screen name="playground" options={{ href: null }} />
+      <Tabs.Screen name="playground-form" options={{ href: null }} />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  label: {
+    fontSize: tokens.typography.sizes.xs,
+    fontWeight: tokens.typography.weights.medium,
+    letterSpacing: 0.2,
+  },
+});
