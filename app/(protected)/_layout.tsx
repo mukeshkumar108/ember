@@ -72,6 +72,9 @@ export default function ProtectedLayout() {
   if (!user.onboarding.completed && !isOnOnboarding) {
     return <Redirect href="/(protected)/onboarding" />;
   }
+  if (user.onboarding.completed && isOnOnboarding) {
+    return <Redirect href="/(protected)/(tabs)" />;
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

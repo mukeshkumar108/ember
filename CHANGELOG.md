@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [Onboarding Completion] - 2026-04-16
+
+### Added
+- `useCompleteOnboarding` mutation hook to update onboarding through `PATCH /api/v1/me` with a typed request payload.
+- `UpdateMeRequest` type in `src/api/types.ts` for frontend-safe `PATCH /api/v1/me` request bodies.
+
+### Improved
+- Onboarding screen now performs real completion API call with loading and error states.
+- Successful onboarding completion now invalidates/refetches `me` and relies on protected layout routing to transition users into tabs.
+- Protected layout now redirects completed users away from onboarding to tabs when onboarding state becomes complete.
+
 ## [Public Auth Flow] - 2026-04-15
 
 ### Added

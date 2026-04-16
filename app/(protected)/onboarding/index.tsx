@@ -1,14 +1,13 @@
-import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCompleteOnboarding } from "@/hooks/use-complete-onboarding";
 
 export default function OnboardingScreen() {
-  const router = useRouter();
+  const { error, isPending, mutate } = useCompleteOnboarding();
+  const errorMessage = error instanceof Error ? error.message : "Failed to complete onboarding.";
 
   const handleComplete = () => {
-    // TODO: Call API to complete onboarding
-    // await request('/api/v1/onboarding/complete', { method: 'POST' });
-    router.replace("/(protected)/(tabs)");
+    mutate();
   };
 
   return (
@@ -22,8 +21,20 @@ export default function OnboardingScreen() {
         <Text>Onboarding steps go here.</Text>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleComplete}>
-        <Text style={styles.buttonText}>Get Started</Text>
+      {error ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
+      {isPending ? (
+        <View style={styles.loadingRow}>
+          <ActivityIndicator size="small" />
+          <Text style={styles.loadingText}>Saving onboarding status...</Text>
+        </View>
+      ) : null}
+
+      <TouchableOpacity
+        style={[styles.button, isPending ? styles.buttonDisabled : null]}
+        onPress={handleComplete}
+        disabled={isPending}>
+        <Text style={styles.buttonText}>{isPending ? "Completing..." : "Get Started"}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -59,9 +70,27 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
   buttonText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
+  },
+  loadingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  loadingText: {
+    color: "#666",
+    fontSize: 14,
+  },
+  errorText: {
+    color: "#c0392b",
+    marginBottom: 12,
+    textAlign: "center",
   },
 });

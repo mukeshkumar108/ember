@@ -55,3 +55,11 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface UpdateMeRequest {
+  profile?: Partial<UserProfile>;
+  preferences?: Partial<UserPreferences>;
+  onboarding?: {
+    completed?: true;
+  };
+}
