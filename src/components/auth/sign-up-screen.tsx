@@ -1,16 +1,9 @@
 import { Link } from 'expo-router';
 import React from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Button, Card, Input, Screen, Section } from '@/components/ui';
 import { useEmailSignUp } from '@/hooks/auth/use-email-sign-up';
+import { tokens } from '@/styles/tokens';
 
 export function SignUpScreen() {
   const {
@@ -32,181 +25,126 @@ export function SignUpScreen() {
     verifyEmail,
   } = useEmailSignUp();
 
-  const isDisabled = !isLoaded || isSubmitting;
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{isPendingVerification ? 'Verify Email' : 'Create Account'}</Text>
+    <Screen>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.layout}>
+        <Section title={isPendingVerification ? 'Verify Email' : 'Create Account'}>
           <Text style={styles.subtitle}>
             {isPendingVerification
               ? 'Complete sign up with the verification code sent to your email.'
               : 'Create an Ember account with email and password.'}
           </Text>
-        </View>
+        </Section>
 
-        <View style={styles.form}>
+        <Card>
           {isPendingVerification ? (
-            <TextInput
+            <Input
               autoCapitalize="none"
               autoComplete="one-time-code"
               keyboardType="number-pad"
+              label="Verification code"
               onChangeText={setVerificationCode}
-              placeholder="Verification code"
-              placeholderTextColor="#8f8f8f"
-              style={styles.input}
               value={verificationCode}
+              error={error ?? undefined}
             />
           ) : (
-            <>
-              <TextInput
+            <View style={styles.fieldGroup}>
+              <Input
                 autoCapitalize="none"
                 autoComplete="email"
                 keyboardType="email-address"
+                label="Email"
                 onChangeText={setEmail}
-                placeholder="Email"
-                placeholderTextColor="#8f8f8f"
-                style={styles.input}
                 value={email}
+                error={error ?? undefined}
               />
-              <TextInput
+              <Input
                 autoCapitalize="none"
                 autoComplete="new-password"
+                label="Password"
                 onChangeText={setPassword}
-                placeholder="Password"
-                placeholderTextColor="#8f8f8f"
                 secureTextEntry
-                style={styles.input}
                 value={password}
               />
-              <TextInput
+              <Input
                 autoCapitalize="none"
                 autoComplete="new-password"
+                label="Confirm password"
                 onChangeText={setConfirmPassword}
-                placeholder="Confirm password"
-                placeholderTextColor="#8f8f8f"
                 secureTextEntry
-                style={styles.input}
                 value={confirmPassword}
               />
-            </>
+            </View>
           )}
 
           {notice ? <Text style={styles.noticeText}>{notice}</Text> : null}
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {!isLoaded ? <Text style={styles.infoText}>Preparing authentication...</Text> : null}
 
           {isPendingVerification ? (
-            <>
-              <Pressable disabled={isDisabled} onPress={() => void verifyEmail()} style={styles.button}>
-                <Text style={styles.buttonText}>{isSubmitting ? 'Verifying...' : 'Verify and Continue'}</Text>
-              </Pressable>
-              <Pressable disabled={isDisabled} onPress={backToCredentials} style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>Back</Text>
-              </Pressable>
-            </>
+            <View style={styles.buttonGroup}>
+              <Button
+                disabled={!isLoaded}
+                label="Verify and Continue"
+                loading={isSubmitting}
+                onPress={() => void verifyEmail()}
+              />
+              <Button
+                disabled={!isLoaded || isSubmitting}
+                label="Back"
+                onPress={backToCredentials}
+                variant="secondary"
+              />
+            </View>
           ) : (
-            <Pressable disabled={isDisabled} onPress={() => void startSignUp()} style={styles.button}>
-              <Text style={styles.buttonText}>{isSubmitting ? 'Creating account...' : 'Create Account'}</Text>
-            </Pressable>
+            <Button
+              disabled={!isLoaded}
+              label="Create Account"
+              loading={isSubmitting}
+              onPress={() => void startSignUp()}
+            />
           )}
-
-          {!isLoaded ? <Text style={styles.infoText}>Preparing authentication...</Text> : null}
-        </View>
+        </Card>
 
         <Link asChild href="/(public)/sign-in">
-          <Pressable style={styles.linkButton}>
+          <Pressable>
             <Text style={styles.linkText}>Already have an account? Sign in</Text>
           </Pressable>
         </Link>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  layout: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
     justifyContent: 'space-between',
-  },
-  header: {
-    gap: 8,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '700',
-    color: '#111',
+    gap: tokens.spacing.xl,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    color: tokens.colors.muted,
+    fontSize: tokens.typography.sizes.base,
     lineHeight: 22,
   },
-  form: {
-    gap: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#111',
-    backgroundColor: '#fff',
+  fieldGroup: {
+    gap: tokens.spacing.md,
   },
   noticeText: {
-    color: '#1d4ed8',
-    fontSize: 14,
-  },
-  errorText: {
-    color: '#c0392b',
-    fontSize: 14,
+    color: tokens.colors.primary,
+    fontSize: tokens.typography.sizes.sm,
   },
   infoText: {
-    color: '#666',
-    fontSize: 13,
+    color: tokens.colors.muted,
+    fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
   },
-  button: {
-    marginTop: 4,
-    borderRadius: 10,
-    backgroundColor: '#111',
-    paddingVertical: 13,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  secondaryButton: {
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: '#444',
-    fontWeight: '500',
-    fontSize: 15,
-  },
-  linkButton: {
-    alignSelf: 'center',
-    paddingVertical: 8,
+  buttonGroup: {
+    gap: tokens.spacing.sm,
   },
   linkText: {
-    color: '#007AFF',
-    fontSize: 15,
-    fontWeight: '500',
+    color: tokens.colors.primary,
+    fontSize: tokens.typography.sizes.base,
+    fontWeight: tokens.typography.weights.medium,
+    textAlign: 'center',
   },
 });

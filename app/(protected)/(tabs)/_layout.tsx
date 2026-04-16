@@ -4,16 +4,13 @@ import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/ui/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/styles/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { tokens } from '@/styles/tokens';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme() ?? 'light';
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
+        tabBarActiveTintColor: tokens.colors.primary,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: Platform.select({
@@ -43,6 +40,12 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="playground"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

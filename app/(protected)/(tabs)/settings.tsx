@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { Alert, StyleSheet, Text } from 'react-native';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
+import { Button, Card, Screen, Section } from '@/components/ui';
+import { tokens } from '@/styles/tokens';
 
 export default function SettingsScreen() {
   const { signOut } = useAuth();
@@ -16,91 +18,52 @@ export default function SettingsScreen() {
       console.error('Sign out error', err);
     }
   };
-const handleDeleteAccount = () => {
-  // TODO: Implement account deletion logic.
-  // 1. Show confirmation dialog.
-  // 2. Call backend DELETE /api/v1/me.
-  // 3. Delete Clerk user account.
-  Alert.alert(
-    'Delete Account',
-...
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
       'This is a placeholder CTA only. Account deletion logic is deferred.',
-      [{ text: 'OK' }]
+      [{ text: 'OK' }],
     );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      
-      <View style={styles.profileSection}>
-        <Text style={styles.label}>Signed in as:</Text>
-        <Text style={styles.value}>{user?.primaryEmailAddress?.emailAddress}</Text>
-      </View>
+    <Screen scroll>
+      <Section title="Settings">
+        <Card>
+          <Text style={styles.label}>Signed in as</Text>
+          <Text style={styles.value}>{user?.primaryEmailAddress?.emailAddress ?? 'Unknown email'}</Text>
+        </Card>
+      </Section>
 
-      <TouchableOpacity style={styles.button} onPress={handleSignOut}>
-        <Text style={styles.buttonText}>Log Out</Text>
-      </TouchableOpacity>
+      <Section title="Account Actions">
+        <Button label="Log Out" onPress={() => void handleSignOut()} variant="secondary" />
+        <Button label="Delete Account" onPress={handleDeleteAccount} variant="danger" />
+      </Section>
 
-      <TouchableOpacity style={[styles.button, styles.dangerButton]} onPress={handleDeleteAccount}>
-        <Text style={styles.dangerButtonText}>Delete Account</Text>
-      </TouchableOpacity>
+      <Section title="Developer">
+        <Button label="Open UI Playground" onPress={() => router.push('/(protected)/(tabs)/playground')} variant="secondary" />
+      </Section>
 
-      <View style={styles.footer}>
-         <Text style={styles.footerText}>Ember v1.0.0</Text>
-      </View>
-    </View>
+      <Text style={styles.footer}>Ember v1.0.0</Text>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-    paddingTop: 60,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 32,
-  },
-  profileSection: {
-    marginBottom: 40,
-  },
   label: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
+    color: tokens.colors.muted,
+    fontSize: tokens.typography.sizes.sm,
+    fontWeight: tokens.typography.weights.medium,
   },
   value: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  button: {
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  buttonText: {
-    fontSize: 16,
-    color: '#007AFF',
-  },
-  dangerButton: {
-    marginTop: 20,
-    borderBottomWidth: 0,
-  },
-  dangerButtonText: {
-    fontSize: 16,
-    color: '#FF3B30',
+    color: tokens.colors.foreground,
+    fontSize: tokens.typography.sizes.base,
+    fontWeight: tokens.typography.weights.medium,
   },
   footer: {
-    marginTop: 'auto',
-    alignItems: 'center',
-    paddingBottom: 20,
-  },
-  footerText: {
-    color: '#999',
-    fontSize: 12,
+    color: tokens.colors.muted,
+    fontSize: tokens.typography.sizes.sm,
+    textAlign: 'center',
   },
 });

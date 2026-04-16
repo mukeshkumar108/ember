@@ -1,55 +1,48 @@
-import { StyleSheet, ScrollView } from 'react-native';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text } from 'react-native';
+import { Card, Screen, Section } from '@/components/ui';
+import { tokens } from '@/styles/tokens';
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Welcome!</ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Phase-1 Starter</ThemedText>
-          <ThemedText>
-            This is a reusable Expo / React Native frontend starter for the forgingfire backend.
-          </ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Authentication</ThemedText>
-          <ThemedText>
-            Powered by Clerk. Secure token storage via expo-secure-store.
-          </ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Data Fetching</ThemedText>
-          <ThemedText>
-            Powered by TanStack Query with a custom typed fetch client that auto-attaches Clerk tokens.
-          </ThemedText>
-        </ThemedView>
-      </ScrollView>
-    </SafeAreaView>
+    <Screen scroll>
+      <Section title="Welcome">
+        <Text style={styles.lead}>
+          Ember is a reusable Expo and React Native foundation for the forgingfire backend.
+        </Text>
+      </Section>
+
+      <Section title="Foundation Status">
+        <Card>
+          <Text style={styles.cardTitle}>Authentication</Text>
+          <Text style={styles.body}>
+            Clerk auth is wired with protected routing and onboarding gating.
+          </Text>
+        </Card>
+        <Card>
+          <Text style={styles.cardTitle}>Bootstrap</Text>
+          <Text style={styles.body}>
+            Startup state is loaded from /api/v1/me and used to drive route guards.
+          </Text>
+        </Card>
+      </Section>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
+  lead: {
+    color: tokens.colors.muted,
+    fontSize: tokens.typography.sizes.base,
+    lineHeight: 22,
   },
-  scrollContent: {
-    padding: 20,
-    gap: 16,
+  cardTitle: {
+    color: tokens.colors.foreground,
+    fontSize: tokens.typography.sizes.lg,
+    fontWeight: tokens.typography.weights.bold,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  body: {
+    color: tokens.colors.foreground,
+    fontSize: tokens.typography.sizes.base,
+    lineHeight: 22,
   },
 });

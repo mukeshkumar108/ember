@@ -1,29 +1,38 @@
 import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
+import { StyleSheet, Text } from 'react-native';
+import { Screen, Section } from '@/components/ui';
+import { tokens } from '@/styles/tokens';
 
 export default function ModalScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">This is a modal</ThemedText>
+    <Screen contentContainerStyle={styles.container}>
+      <Section title="Modal">
+        <Text style={styles.subtitle}>This is a non-product utility modal route.</Text>
+      </Section>
       <Link href="/(protected)/(tabs)" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
+        <Text style={styles.linkText}>Go to home screen</Text>
       </Link>
-    </ThemedView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    alignItems: 'center',
+  },
+  subtitle: {
+    color: tokens.colors.muted,
+    fontSize: tokens.typography.sizes.base,
+    textAlign: 'center',
+  },
+  linkText: {
+    color: tokens.colors.primary,
+    fontSize: tokens.typography.sizes.base,
+    fontWeight: tokens.typography.weights.medium,
   },
   link: {
-    marginTop: 15,
-    paddingVertical: 15,
+    marginTop: tokens.spacing.lg,
+    paddingVertical: tokens.spacing.md,
   },
 });

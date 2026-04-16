@@ -36,6 +36,11 @@ Ember is a **non-product-specific mobile shell** for the [forgingfire](https://g
 - **No Refactoring**: Do not refactor code outside the immediate task scope.
 - **Verification**: Always verify that path aliases (`@/*`) are used for internal imports.
 - **Quality Gate**: Run `pnpm lint` after each task-level change set and report warnings/errors honestly.
+- **UI Tokens**: All UI must use tokens from `src/styles/tokens.ts`.
+- **No Ad Hoc Styles**: Do not introduce new colors or spacing values ad hoc.
+- **Use Base Primitives**: Use `Button`, `Input`, `Card`, `Screen`, and `Section` before creating new UI components.
+- **Extend, Don't Duplicate**: Prefer extending existing primitives over creating near-duplicate components.
+- **Playground Discipline**: Keep UI playground usage internal and non-product (`app/(protected)/(tabs)/playground.tsx`) and avoid adding product logic there.
 
 ## Handover Reporting Format
 When completing a task, you **must** report:
