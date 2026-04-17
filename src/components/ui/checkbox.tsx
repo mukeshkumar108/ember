@@ -1,9 +1,10 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { tokens } from '@/styles/tokens';
+import { useReduceMotion } from '@/hooks';
 
 type CheckboxProps = {
   label: string;
@@ -24,6 +25,7 @@ export function Checkbox({
   error,
   style,
 }: CheckboxProps) {
+  const reduceMotion = useReduceMotion();
   const scale = useSharedValue(1);
 
   const animatedBoxStyle = useAnimatedStyle(() => ({
@@ -31,9 +33,13 @@ export function Checkbox({
   }));
 
   const handlePress = () => {
-    scale.value = withSpring(0.85, { damping: 12, stiffness: 400 }, () => {
-      scale.value = withSpring(1, { damping: 12, stiffness: 400 });
-    });
+    if (reduceMotion) {
+      scale.value = withTiming(1, { duration: 0 });
+    } else {
+      scale.value = withSpring(0.85, { damping: 12, stiffness: 400 }, () => {
+        scale.value = withSpring(1, { damping: 12, stiffness: 400 });
+      });
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onChange(!checked);
   };
@@ -42,6 +48,7 @@ export function Checkbox({
     <View style={[styles.container, style]}>
       <Pressable
         accessibilityRole="checkbox"
+        accessibilityLabel={description ? `${label}, ${description}` : label}
         accessibilityState={{ checked, disabled }}
         disabled={disabled}
         onPress={handlePress}
@@ -71,6 +78,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: tokens.spacing.sm,
+    minHeight: 44,
+    paddingVertical: tokens.spacing.xs,
   },
   box: {
     width: 22,

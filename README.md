@@ -11,6 +11,9 @@ A premium, product-agnostic mobile starter template for the [forgingfire](https:
 - Reanimated 4 animations (Sheet, Toast, Checkbox, ConfirmModal)
 - Settings screen with profile editing and toast feedback
 - Sheet, ConfirmModal, and Toast overlay patterns
+- VoiceOver / accessibility annotations on all interactive components
+- Reduce Motion support wired into all animated components
+- WCAG AA contrast on all text and badge/toast variants
 
 ---
 
@@ -150,6 +153,7 @@ Validates every primitive interactively — all button variants, inputs, select,
 | Doc | Purpose |
 |---|---|
 | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | **Start here.** Token reference, component API, patterns, how to customize |
+| [APPLE_COMPLIANCE.md](./APPLE_COMPLIANCE.md) | App Store requirements, accessibility checklist, per-project config |
 | [AGENTS.md](./AGENTS.md) | Architecture rules and AI agent handover format |
 | [CURRENT_STATE.md](./CURRENT_STATE.md) | Honest current status, risks, and next tasks |
 | [CHANGELOG.md](./CHANGELOG.md) | Incremental checkpoint history |

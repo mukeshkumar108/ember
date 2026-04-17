@@ -44,6 +44,8 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={loading ? `${label}, loading` : label}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={({ pressed }) => [
         styles.base,
         sizeStyles[size],
@@ -61,7 +63,9 @@ export function Button({
           color={variant === 'secondary' || variant === 'ghost' ? tokens.colors.primary : tokens.colors.background}
         />
       ) : null}
-      <Text style={[styles.textBase, textSizeStyles[size], textVariantStyles[variant]]}>{label}</Text>
+      <Text style={[styles.textBase, textSizeStyles[size], textVariantStyles[variant]]} accessibilityElementsHidden>
+        {label}
+      </Text>
     </Pressable>
   );
 }

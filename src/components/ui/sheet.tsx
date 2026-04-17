@@ -19,6 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { tokens } from '@/styles/tokens';
+import { useReduceMotion } from '@/hooks';
 
 const OFFSCREEN_Y = 600;
 const DISMISS_THRESHOLD_Y = 120;
@@ -44,17 +45,19 @@ export function Sheet({
   contentStyle,
 }: SheetProps) {
   const insets = useSafeAreaInsets();
+  const reduceMotion = useReduceMotion();
   const [isMounted, setIsMounted] = React.useState(false);
 
   const translateY = useSharedValue(OFFSCREEN_Y);
   const backdropOpacity = useSharedValue(0);
 
   const animateOut = React.useCallback(() => {
-    translateY.value = withTiming(OFFSCREEN_Y, { duration: tokens.animation.duration.base }, (finished) => {
+    const duration = reduceMotion ? 0 : tokens.animation.duration.base;
+    translateY.value = withTiming(OFFSCREEN_Y, { duration }, (finished) => {
       if (finished) runOnJS(setIsMounted)(false);
     });
-    backdropOpacity.value = withTiming(0, { duration: tokens.animation.duration.fast });
-  }, [backdropOpacity, translateY]);
+    backdropOpacity.value = withTiming(0, { duration: reduceMotion ? 0 : tokens.animation.duration.fast });
+  }, [backdropOpacity, translateY, reduceMotion]);
 
   React.useEffect(() => {
     if (visible) {
@@ -68,8 +71,12 @@ export function Sheet({
   React.useEffect(() => {
     if (!isMounted) return;
     const t = setTimeout(() => {
-      translateY.value = withSpring(0, tokens.animation.spring);
-      backdropOpacity.value = withTiming(1, { duration: tokens.animation.duration.fast });
+      if (reduceMotion) {
+        translateY.value = withTiming(0, { duration: 0 });
+      } else {
+        translateY.value = withSpring(0, tokens.animation.spring);
+      }
+      backdropOpacity.value = withTiming(1, { duration: reduceMotion ? 0 : tokens.animation.duration.fast });
     }, 16);
     return () => clearTimeout(t);
   }, [isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -98,7 +105,12 @@ export function Sheet({
   if (!isMounted) return null;
 
   return (
-    <Modal animationType="none" transparent visible={isMounted} onRequestClose={onClose}>
+    <Modal
+      animationType="none"
+      transparent
+      visible={isMounted}
+      onRequestClose={onClose}
+      accessibilityViewIsModal>
       {/* GestureHandlerRootView required — Modal renders outside the app root tree */}
       <GestureHandlerRootView style={styles.flex}>
         <View style={styles.root}>

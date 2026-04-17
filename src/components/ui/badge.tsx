@@ -61,8 +61,9 @@ const textSizeStyles = StyleSheet.create({
 
 const textVariantStyles = StyleSheet.create({
   primary: { color: tokens.colors.primary },
-  success: { color: tokens.colors.success },
-  warning: { color: tokens.colors.warning },
+  // Darkened to pass WCAG AA on the 13%-tinted backgrounds
+  success: { color: '#1A7A32' },
+  warning: { color: '#7A4A00' },
   danger: { color: tokens.colors.danger },
   neutral: { color: tokens.colors.foregroundSecondary },
 });

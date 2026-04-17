@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented here.
 
+## [Accessibility & Apple Compliance Pass] - 2026-04-16
+
+### Accessibility
+- **`Button`** — `accessibilityRole`, `accessibilityLabel` (includes "loading"), `accessibilityState.busy/disabled`
+- **`Input`** — `accessibilityLabel` from label prop, `accessibilityInvalid`, `accessibilityValue` for errors, error `Text` has `role="alert"`
+- **`Select`** — `accessibilityRole="combobox"`, combined label+value accessible label, `expanded`/`disabled` state
+- **`Checkbox`** — combined label+description `accessibilityLabel`, `checked`/`disabled` state, 44pt minimum row height
+- **`ListItem`** — combined title+subtitle `accessibilityLabel`, `disabled` state on pressable variant
+- **`Sheet`** — `accessibilityViewIsModal` traps VoiceOver focus inside overlay
+- **`ConfirmModal`** — `accessibilityViewIsModal`, dialog panel has `accessibilityRole="alert"` for immediate announcement
+- **`Toast`** — `accessibilityLiveRegion="polite"` + `role="status"` so messages announce without focus
+
+### Reduce Motion
+- `useReduceMotion()` hook added (`src/hooks/use-reduce-motion.ts`) — subscribes to system "Reduce Motion" setting
+- Wired into: `Sheet`, `ConfirmModal`, `Toast`, `Checkbox` — all spring/bounce animations replaced with instant (`duration: 0`) when enabled
+- Hook exported from `src/hooks/index.ts`
+
+### Color Contrast (WCAG AA)
+- **`Badge`** success/warning text: changed from `tokens.colors.success/warning` to `#1A7A32` / `#7A4A00` (pass 4.5:1 on tinted backgrounds)
+- **`Toast`** success background: `#1A7A32` (was `#34C759` which failed with white text)
+- **`Toast`** warning background: `#7A4A00` (was `#FF9500` which failed with white text)
+
+### Documentation
+- **`APPLE_COMPLIANCE.md`** added — covers what's built in, per-project config (bundle ID, usage strings, privacy manifest, Sign in with Apple rule, EAS submit, ATT), VoiceOver testing checklist, reduce motion test procedure, common rejection reasons
+
 ## [Design System v2 — Premium Overhaul] - 2026-04-16
 
 ### Breaking / Token Changes

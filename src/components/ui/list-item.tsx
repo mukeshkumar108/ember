@@ -64,9 +64,12 @@ export function ListItem({
   );
 
   if (onPress) {
+    const a11yLabel = subtitle ? `${title}, ${subtitle}` : title;
     return (
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel={a11yLabel}
+        accessibilityState={{ disabled }}
         disabled={disabled}
         onPress={onPress}
         style={({ pressed }) => [

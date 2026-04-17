@@ -45,13 +45,15 @@ export function Select({
   const selectedOption = options.find((o) => o.value === value);
   const selectedLabel = selectedOption?.label ?? '';
 
+  // Compose a full accessible label: "Locale, English (US)" or "Locale, Select an option"
+  const accessibleLabel = label
+    ? `${label}, ${selectedLabel || placeholder}`
+    : selectedLabel || placeholder;
+
   const handleOpen = () => {
-    if (disabled) {
-      return;
-    }
+    if (disabled) return;
 
     if (Platform.OS === 'ios') {
-      // Native action sheet on iOS for true platform feel
       ActionSheetIOS.showActionSheetWithOptions(
         {
           options: ['Cancel', ...options.map((o) => o.label)],
@@ -59,9 +61,7 @@ export function Select({
           title: label,
         },
         (buttonIndex) => {
-          if (buttonIndex === 0) {
-            return;
-          }
+          if (buttonIndex === 0) return;
           onValueChange(options[buttonIndex - 1].value);
         },
       );
@@ -72,10 +72,17 @@ export function Select({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? (
+        <Text style={styles.label} accessibilityElementsHidden importantForAccessibility="no">
+          {label}
+        </Text>
+      ) : null}
 
       <Pressable
-        accessibilityRole="button"
+        accessibilityRole="combobox"
+        accessibilityLabel={accessibleLabel}
+        accessibilityState={{ disabled, expanded: isSheetOpen }}
+        accessibilityValue={{ text: selectedLabel || placeholder }}
         disabled={disabled}
         onPress={handleOpen}
         style={({ pressed }) => [
@@ -87,14 +94,14 @@ export function Select({
         <Text style={selectedLabel ? styles.valueText : styles.placeholderText} numberOfLines={1}>
           {selectedLabel || placeholder}
         </Text>
-        <ChevronDown
-          size={16}
-          color={tokens.colors.muted}
-          strokeWidth={2}
-        />
+        <ChevronDown size={16} color={tokens.colors.muted} strokeWidth={2} />
       </Pressable>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text style={styles.error} accessibilityRole="alert">
+          {error}
+        </Text>
+      ) : null}
       {hint && !error ? <Text style={styles.hint}>{hint}</Text> : null}
 
       {/* Android-only sheet picker */}
@@ -110,6 +117,8 @@ export function Select({
                 <Pressable
                   key={option.value}
                   accessibilityRole="menuitem"
+                  accessibilityState={{ selected: isSelected }}
+                  accessibilityLabel={isSelected ? `${option.label}, selected` : option.label}
                   onPress={() => {
                     onValueChange(option.value);
                     setIsSheetOpen(false);

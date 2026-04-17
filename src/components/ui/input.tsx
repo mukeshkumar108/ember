@@ -22,9 +22,22 @@ export function Input({ label, error, hint, containerStyle, style, onFocus, onBl
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? (
+        // Hidden from accessibility tree — the label is surfaced via
+        // accessibilityLabel on the TextInput directly
+        <Text style={styles.label} accessibilityElementsHidden importantForAccessibility="no">
+          {label}
+        </Text>
+      ) : null}
       <TextInput
         placeholderTextColor={tokens.colors.muted}
+        // Surface the label as the accessible name so VoiceOver announces
+        // "Email, text field" rather than just "text field"
+        accessibilityLabel={label}
+        accessibilityHint={hint}
+        // Announce error to VoiceOver when present
+        accessibilityValue={error ? { text: error } : undefined}
+        accessibilityInvalid={!!error}
         style={[
           styles.input,
           isFocused ? styles.inputFocused : null,
@@ -41,7 +54,11 @@ export function Input({ label, error, hint, containerStyle, style, onFocus, onBl
         }}
         {...props}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text style={styles.error} accessibilityRole="alert">
+          {error}
+        </Text>
+      ) : null}
       {hint && !error ? <Text style={styles.hint}>{hint}</Text> : null}
     </View>
   );

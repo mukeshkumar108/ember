@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokens } from '@/styles/tokens';
+import { useReduceMotion } from '@/hooks';
 
 type ToastType = 'info' | 'success' | 'error' | 'warning';
 
@@ -40,6 +41,7 @@ export function useToast() {
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const insets = useSafeAreaInsets();
+  const reduceMotion = useReduceMotion();
   const [toast, setToast] = React.useState<ToastItem | null>(null);
   const [isVisible, setIsVisible] = React.useState(false);
   const hideTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -60,11 +62,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       setIsVisible(false);
       setToast(null);
     };
-    translateY.value = withTiming(80, { duration: tokens.animation.duration.fast }, (finished) => {
+    const dur = reduceMotion ? 0 : tokens.animation.duration.fast;
+    translateY.value = withTiming(80, { duration: dur }, (finished) => {
       if (finished) runOnJS(hide)();
     });
-    opacity.value = withTiming(0, { duration: tokens.animation.duration.fast });
-  }, [opacity, translateY]);
+    opacity.value = withTiming(0, { duration: dur });
+  }, [opacity, translateY, reduceMotion]);
 
   const hideToast = React.useCallback(() => {
     clearHideTimer();
@@ -88,8 +91,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
       // Kick off entry animation on next frame
       setTimeout(() => {
-        translateY.value = withSpring(0, { damping: 20, stiffness: 300, mass: 0.7 });
-        opacity.value = withTiming(1, { duration: tokens.animation.duration.fast });
+        if (reduceMotion) {
+          translateY.value = withTiming(0, { duration: 0 });
+        } else {
+          translateY.value = withSpring(0, { damping: 20, stiffness: 300, mass: 0.7 });
+        }
+        opacity.value = withTiming(1, { duration: reduceMotion ? 0 : tokens.animation.duration.fast });
       }, 16);
 
       hideTimeoutRef.current = setTimeout(() => {
@@ -112,6 +119,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {isVisible && toast ? (
         <View pointerEvents="box-none" style={styles.viewport}>
           <Animated.View
+            accessibilityLiveRegion="polite"
+            accessibilityRole="status"
             style={[
               styles.toast,
               toastTypeStyle[toast.type],
@@ -119,7 +128,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               { marginBottom: insets.bottom + tokens.spacing.lg },
               animatedStyle,
             ]}>
-            <Text style={styles.message} numberOfLines={2}>{toast.message}</Text>
+            <Text style={[styles.message, toastTextStyle[toast.type]]} numberOfLines={2}>{toast.message}</Text>
             {toast.actionLabel && toast.onAction ? (
               <Pressable
                 accessibilityRole="button"
@@ -127,11 +136,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   toast.onAction?.();
                   hideToast();
                 }}>
-                <Text style={styles.action}>{toast.actionLabel}</Text>
+                <Text style={[styles.action, toastTextStyle[toast.type]]}>{toast.actionLabel}</Text>
               </Pressable>
             ) : (
               <Pressable accessibilityRole="button" onPress={hideToast}>
-                <Text style={styles.action}>Dismiss</Text>
+                <Text style={[styles.action, toastTextStyle[toast.type]]}>Dismiss</Text>
               </Pressable>
             )}
           </Animated.View>
@@ -143,9 +152,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
 const toastTypeStyle: Record<ToastType, StyleProp<ViewStyle>> = {
   info: { backgroundColor: '#1C1C1E' }, // near-black for high contrast
-  success: { backgroundColor: tokens.colors.success },
+  success: { backgroundColor: '#1A7A32' }, // darkened for WCAG AA with white text
   error: { backgroundColor: tokens.colors.danger },
-  warning: { backgroundColor: tokens.colors.warning },
+  warning: { backgroundColor: '#7A4A00' }, // darkened for WCAG AA with white text
+};
+
+// success/warning use dark backgrounds now, all four use white text — contrast passes AA
+const toastTextStyle: Record<ToastType, { color: string }> = {
+  info: { color: tokens.colors.background },
+  success: { color: tokens.colors.background },
+  error: { color: tokens.colors.background },
+  warning: { color: tokens.colors.background },
 };
 
 const styles = StyleSheet.create({

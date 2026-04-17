@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Button } from './button';
 import { tokens } from '@/styles/tokens';
+import { useReduceMotion } from '@/hooks';
 
 type ConfirmModalProps = {
   visible: boolean;
@@ -30,18 +31,21 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const reduceMotion = useReduceMotion();
   const scale = useSharedValue(0.92);
   const opacity = useSharedValue(0);
 
   React.useEffect(() => {
     if (visible) {
-      scale.value = withSpring(1, { damping: 18, stiffness: 320, mass: 0.7 });
-      opacity.value = withTiming(1, { duration: tokens.animation.duration.fast });
+      scale.value = reduceMotion
+        ? withTiming(1, { duration: 0 })
+        : withSpring(1, { damping: 18, stiffness: 320, mass: 0.7 });
+      opacity.value = withTiming(1, { duration: reduceMotion ? 0 : tokens.animation.duration.fast });
     } else {
-      scale.value = withTiming(0.92, { duration: tokens.animation.duration.fast });
-      opacity.value = withTiming(0, { duration: tokens.animation.duration.fast });
+      scale.value = withTiming(reduceMotion ? 1 : 0.92, { duration: reduceMotion ? 0 : tokens.animation.duration.fast });
+      opacity.value = withTiming(0, { duration: reduceMotion ? 0 : tokens.animation.duration.fast });
     }
-  }, [visible, scale, opacity]);
+  }, [visible, scale, opacity, reduceMotion]);
 
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -53,13 +57,20 @@ export function ConfirmModal({
   }));
 
   return (
-    <Modal animationType="none" transparent visible={visible} onRequestClose={onCancel}>
+    <Modal
+      animationType="none"
+      transparent
+      visible={visible}
+      onRequestClose={onCancel}
+      accessibilityViewIsModal>
       <View style={styles.root}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onCancel}>
           <Animated.View style={[styles.backdrop, backdropStyle]} />
         </Pressable>
 
-        <Animated.View style={[styles.modal, tokens.shadow.lg, panelStyle]}>
+        <Animated.View
+          style={[styles.modal, tokens.shadow.lg, panelStyle]}
+          accessibilityRole="alert">
           <View style={styles.textContent}>
             <Text style={styles.title}>{title}</Text>
             <Text style={styles.message}>{message}</Text>
