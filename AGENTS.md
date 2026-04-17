@@ -21,6 +21,7 @@ It is not a product and should stay domain-agnostic.
    - parser: `src/api/validation.ts` (`parseApiContract`)
    - usage: `request<unknown>()` -> `parseApiContract(schema, payload, context)` -> business checks
 5. If parsing fails, let it fail loudly (`ApiContractError`) so backend drift is visible immediately.
+6. Device registration (`POST /api/v1/devices`) must use the same `request<unknown> -> parseApiContract(...)` boundary pattern.
 
 ## UI and Interaction Rules
 1. Use tokens from `src/styles/tokens.ts`; no ad-hoc colors or spacing.
@@ -36,6 +37,12 @@ It is not a product and should stay domain-agnostic.
 1. Async errors: surface with shared feedback components.
 2. Render crashes: app is wrapped with `AppErrorBoundary` in `app/_layout.tsx`.
 3. Keep boundary fallback starter-grade and practical.
+
+## Device Registration Rules
+1. `useDeviceRegistration` runs in authenticated protected lifecycle and must stay non-blocking.
+2. Handle unsupported environments (simulator/web/missing project ID) gracefully without noisy crashes.
+3. Keep registration idempotent and quiet; avoid repeated duplicate posts.
+4. Keep settings/dev visibility minimal (status + support/token presence), not a debug console.
 
 ## Out of Scope
 - Product-specific features

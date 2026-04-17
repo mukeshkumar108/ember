@@ -107,3 +107,11 @@ Expected coverage:
 - full timezone dataset/search UI
 - advanced modal stacking and gesture framework
 - product/domain-specific onboarding or account workflows
+
+## 9) Device Registration Baseline
+
+- Lifecycle owner: `useDeviceRegistration` (called in protected layout).
+- Contract: `POST /api/v1/devices`.
+- Pattern: `request<unknown>` then `parseApiContract(registerDeviceResponseSchema, ...)`.
+- Keep flow non-blocking and idempotent.
+- For dev checks, read status from settings developer section.

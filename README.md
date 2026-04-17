@@ -18,6 +18,7 @@ It is not a product. It is a practical app shell for future mobile experiments.
 - Form primitives and keyboard-safe form screen pattern.
 - Overlay primitives: sheet, confirm modal, toast.
 - App-level React error boundary fallback.
+- Device registration baseline via `POST /api/v1/devices` (with graceful environment fallbacks).
 
 ## Quick Start
 
@@ -85,11 +86,28 @@ Current key schemas:
 - `src/api/schemas.ts`
   - `meResponseSchema`
   - `userSchema`
+  - `registerDeviceResponseSchema`
 
 Parser helper:
 - `src/api/validation.ts`
   - `parseApiContract`
   - `ApiContractError`
+
+## Device Registration Baseline
+
+Ember performs quiet authenticated device registration from `useDeviceRegistration`:
+- requests notification permission where supported
+- obtains Expo push token when available
+- sends `POST /api/v1/devices` with `{ platform, pushToken, appVersion? }`
+- validates response with `registerDeviceResponseSchema`
+- caches recent successful registration to avoid noisy repeated posts
+
+This flow is non-blocking: failure or unsupported environment does not break app startup.
+
+### Environment caveats
+- Simulator/emulator and some Expo Go environments cannot provide a real push token.
+- Missing EAS project ID prevents Expo push token retrieval.
+- Web registration is currently skipped in Ember baseline.
 
 ## Error Handling
 

@@ -41,7 +41,7 @@ export interface UserOnboarding {
 export interface UserSubscription {
   isPro: boolean;
   plan: "free" | "pro";
-  status: "active" | "trialing" | "canceled" | "expired" | null;
+  status: "active" | "trialing" | "none";
 }
 
 export interface User {
@@ -62,4 +62,21 @@ export interface UpdateMeRequest {
   onboarding?: {
     completed?: true;
   };
+}
+
+export interface RegisterDeviceRequest {
+  platform: 'ios' | 'android' | 'web';
+  pushToken: string;
+  appVersion?: string;
+}
+
+export interface Device {
+  id: string;
+  userId: string;
+  platform: 'ios' | 'android' | 'web';
+  pushToken: string;
+  appVersion: string | null;
+  lastSeenAt: string;
+  createdAt: string;
+  updatedAt: string;
 }

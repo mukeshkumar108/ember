@@ -37,7 +37,7 @@ export const userOnboardingSchema = z.object({
 export const userSubscriptionSchema = z.object({
   isPro: z.boolean(),
   plan: z.enum(['free', 'pro']),
-  status: z.enum(['active', 'trialing', 'canceled', 'expired']).nullable(),
+  status: z.enum(['active', 'trialing', 'none']),
 });
 
 export const userSchema = z.object({
@@ -61,5 +61,26 @@ export function apiResponseSchema<T extends z.ZodTypeAny>(dataSchema: T) {
 }
 
 export const meResponseSchema = apiResponseSchema(userSchema);
+export const registerDeviceRequestSchema = z
+  .object({
+    platform: z.enum(['ios', 'android', 'web']),
+    pushToken: z.string().trim().min(1).max(2048),
+    appVersion: z.string().trim().min(1).max(64).optional(),
+  })
+  .strict();
+
+export const deviceSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  platform: z.enum(['ios', 'android', 'web']),
+  pushToken: z.string(),
+  appVersion: z.string().nullable(),
+  lastSeenAt: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const registerDeviceResponseSchema = apiResponseSchema(deviceSchema);
 
 export type MeResponse = z.infer<typeof meResponseSchema>;
+export type RegisterDeviceResponse = z.infer<typeof registerDeviceResponseSchema>;

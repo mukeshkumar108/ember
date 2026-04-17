@@ -8,7 +8,7 @@ import { ErrorState, LoadingState } from '@/components/feedback';
 import { Badge, Button, Card, Divider, FormScreen, Input, ListItem, Section, Select, TextArea, useToast } from '@/components/ui';
 import { API_URL } from '@/config';
 import { User } from '@/api/types';
-import { useMe, useUpdateMe } from '@/hooks';
+import { useDeviceRegistration, useMe, useUpdateMe } from '@/hooks';
 import { profileSchema, type ProfileFormData } from '@/lib/schemas';
 import { tokens } from '@/styles/tokens';
 
@@ -57,6 +57,7 @@ export function SettingsScreen() {
   const router = useRouter();
   const { signOut } = useAuth();
   const { showToast } = useToast();
+  const { status: deviceRegistrationStatus, retryRegistration } = useDeviceRegistration({ autoRegister: false });
   const { data: user, error, isError, isLoading, refetch } = useMe();
   const updateMe = useUpdateMe();
 
@@ -267,10 +268,22 @@ export function SettingsScreen() {
           <Card>
             <Text style={styles.meta}>API: {API_URL}</Text>
             <Text style={styles.meta}>User ID: {user.id}</Text>
+            <Text style={styles.meta}>Device registration: {deviceRegistrationStatus.state}</Text>
+            <Text style={styles.meta}>
+              Supported: {deviceRegistrationStatus.supported ? 'yes' : 'no'} · Token present:{' '}
+              {deviceRegistrationStatus.hasPushToken ? 'yes' : 'no'}
+            </Text>
+            <Text style={styles.meta}>Status: {deviceRegistrationStatus.message}</Text>
             {errors.root ? (
               <Text style={styles.meta}>Form error: {errors.root.message}</Text>
             ) : null}
             <Button label="Refetch /me" onPress={() => void refetch()} variant="secondary" size="sm" />
+            <Button
+              label="Retry Device Registration"
+              onPress={() => void retryRegistration()}
+              variant="secondary"
+              size="sm"
+            />
             <Button
               label="Open UI Playground"
               onPress={() => router.push('/(protected)/(tabs)/playground')}

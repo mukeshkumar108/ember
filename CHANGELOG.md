@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [Device Registration Baseline] - 2026-04-17
+
+### Added
+- `expo-notifications` dependency and Expo notifications plugin registration in `app.json`.
+- Device registration response/request schemas in `src/api/schemas.ts`.
+- Real `useDeviceRegistration` flow with quiet status store and retry capability.
+
+### Changed
+- `useDeviceRegistration` now performs authenticated `POST /api/v1/devices` with boundary parsing (`request<unknown> -> parseApiContract`).
+- Registration now handles unsupported environments and permission denial gracefully without blocking startup.
+- Added idempotent local cache window to reduce duplicate registrations.
+- Settings developer section now shows minimal device registration status and retry action.
+- Documentation updates for lifecycle expectations and environment caveats.
+
 ## [Data-Boundary + Docs Hardening] - 2026-04-17
 
 ### Added
