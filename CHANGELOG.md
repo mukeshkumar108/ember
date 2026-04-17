@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## [Data-Boundary + Docs Hardening] - 2026-04-17
+
+### Added
+- `src/api/schemas.ts` with Zod schemas for active `/api/v1/me` response contracts.
+- `src/api/validation.ts` with `parseApiContract` and explicit `ApiContractError`.
+- `src/components/feedback/app-error-boundary.tsx` lightweight app-level render crash fallback.
+- `DEVELOPMENT.md` docs-first extension guide for common Ember tasks.
+
+### Changed
+- `useMe`, `useUpdateMe`, and `useCompleteOnboarding` now request `unknown` and parse with Zod before UI state consumes API payloads.
+- `app/_layout.tsx` now wraps app content with `AppErrorBoundary`.
+- `README.md`, `AGENTS.md`, and `CURRENT_STATE.md` were rewritten to match current architecture and hardening patterns.
+
+### Notes
+- Focused on contract safety and contributor clarity, not new product features.
+
 ## [Form Foundation] - 2026-04-17
 
 ### Added

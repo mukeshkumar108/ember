@@ -1,4 +1,5 @@
 import { Slot } from 'expo-router';
+import { AppErrorBoundary } from '@/components/feedback';
 import { AppProviders } from '@/providers';
 import 'react-native-reanimated';
 
@@ -15,7 +16,9 @@ export const unstable_settings = {
 export default function RootLayout() {
   return (
     <AppProviders>
-      <Slot />
+      <AppErrorBoundary>
+        <Slot />
+      </AppErrorBoundary>
     </AppProviders>
   );
 }

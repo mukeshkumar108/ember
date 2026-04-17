@@ -1,69 +1,43 @@
 # Project Status Report
 
-**Project**: Ember Shell
-**Checkpoint**: Form Foundation (2026-04-17)
-**Maturity**: 1.2.0
-
----
+**Project**: Ember  
+**Checkpoint**: Data-Boundary + Docs Hardening (2026-04-17)  
+**Maturity**: 1.3.0 foundation
 
 ## What Is Solid
+- Public/protected routing and Clerk auth are wired.
+- Protected bootstrap uses `/api/v1/me` and fails closed on bootstrap errors.
+- Onboarding gate and onboarding completion flow are wired through `PATCH /api/v1/me`.
+- Account/settings baseline is implemented with editable profile fields and safe fallbacks.
+- Reusable UI primitives, feedback states, overlays, and keyboard-safe form pattern are in place.
+- Internal playground exists for primitive and interaction validation.
+- **API boundary parsing is now runtime-validated with Zod** for active `/api/v1/me` read/write flows.
+- **App-level crash handling is now present** via `AppErrorBoundary` in `app/_layout.tsx`.
 
-### Foundation
-- **Routing shell**: Public and protected route groups are wired and stable.
-- **Auth wiring**: Clerk Provider + SecureStore token cache are in place.
-- **Public auth flow**: Email/password sign-in and sign-up with conditional verification.
-- **Bootstrap contract**: `/api/v1/me` typed and unwrapped via `useMe`.
-- **Onboarding flow**: completes via `PATCH /api/v1/me` and routes into tabs.
-- **Protected guard**: fails closed on bootstrap failure with retry/sign-out.
-- **Account/Settings**: editable profile fields with `PATCH /api/v1/me`, `Toast` feedback, and `isDirty` save guard.
-- **Form foundation**: `react-hook-form` + `zod` integrated. All auth and profile forms use the standard pattern. Shared schemas in `src/lib/schemas.ts`. See `FORM_PATTERNS.md`.
+## API Boundary Strategy (Current)
+- Backend payloads are requested as `unknown`.
+- Payloads are parsed with Zod schemas from `src/api/schemas.ts` using `parseApiContract`.
+- Hooks currently using this pattern:
+  - `useMe` (`GET /api/v1/me`)
+  - `useUpdateMe` (`PATCH /api/v1/me`)
+  - `useCompleteOnboarding` (`PATCH /api/v1/me`)
+- Contract drift throws explicit `ApiContractError` with issue details.
 
-### Design System (v2)
-- **Token system**: Comprehensive `tokens.ts` — colors (primary #007AFF, semantic variants), spacing (4–64), radius (full pill support), typography (xs–3xl with lineHeight multipliers), shadow presets, animation duration/spring constants.
-- **Icon system**: `lucide-react-native` throughout. `Icon` wrapper component. Tab bar uses Lucide icons with active/inactive stroke weights.
-- **Component library** (all in `src/components/ui/`):
-  - Layout: `Screen` (header, scroll, keyboardAware), `FormScreen`, `Section`, `Card`/`PressableCard`, `Divider`
-  - Inputs: `Input` (focus ring), `TextArea`, `Select` (native ActionSheet iOS), `Checkbox` (Reanimated + haptics), `Toggle` (haptics)
-  - Actions: `Button` (primary/secondary/danger/ghost, sm/md/lg, haptics)
-  - Display: `Avatar`, `Badge`, `ListItem`, `Icon`, `Skeleton`/`SkeletonListItem`
-  - Overlays: `Sheet` (Reanimated 4, spring, swipe-to-dismiss handle), `ConfirmModal` (Reanimated spring, side-by-side buttons), `Toast` (Reanimated 4, types: info/success/warning/error)
-- **Feedback**: `LoadingState`, `ErrorState` (icon-based), `EmptyState` (optional Lucide icon)
-- **Animations**: Reanimated 4 used for Sheet, Toast, ConfirmModal, Checkbox. `react-native-gesture-handler` used for Sheet swipe handle.
-
-### Bug Fixes Applied
-- Sheet animation was 24px twitch → now proper off-screen spring entry (600px start)
-- Toast animation had same bug → fixed
-- Playground inputs hidden by keyboard → `Screen` now has `keyboardAware` prop; playground uses it
-- Input had no focus state → primary-blue border ring on focus
-- Section titles competed with page titles → now iOS-style small-caps section headers
-
----
-
-## What Is Intentionally Placeholder
-- `app/(protected)/onboarding/index.tsx` — single completion action, no multi-step product flow.
-- Delete account — UI only, backend delete semantics deferred.
-- `src/hooks/use-device-registration.ts` — reserved, currently no-op.
-- `@shopify/react-native-skia` — installed for future canvas/visual features, not yet used.
-
----
+## What Is Intentionally Deferred
+- `POST /api/v1/devices` registration (`useDeviceRegistration` is still no-op).
+- Full searchable timezone dataset/picker.
+- Advanced overlay orchestration (stacking/queue manager).
+- Product-specific onboarding/account behaviors.
 
 ## Active Assumptions
-- Backend serves `GET /api/v1/me` at `${EXPO_PUBLIC_API_URL}/api/v1/me`.
-- `User.onboarding.completed` is the canonical onboarding guard field.
-- Clerk tokens are accepted by forgingfire as Bearer auth.
-
----
+- forgingfire keeps `/api/v1/me` envelope shape `{ success, data, error }`.
+- `User.onboarding.completed` remains the canonical onboarding guard signal.
+- Clerk bearer tokens are valid for forgingfire auth.
 
 ## Current Risks
-- **Sign-in edge paths**: MFA/SSO-only accounts get a generic message.
-- **Sheet gesture inside Modal**: Swipe-to-dismiss on the handle works; full-sheet swipe may not fire reliably inside RN Modal on all Android versions. Upgrade path: portal-based sheet.
-- **Profile validation UX**: locale/timezone use curated starter lists, not searchable pickers.
-- **Dark mode**: token structure is ready (single palette object) but dark mode variants are not yet implemented.
+- MFA/SSO-only auth edge cases still surface generic messaging in current auth UX.
+- Locale/timezone controls are curated starter options, not exhaustive global pickers.
+- Error boundary reset retries render path but does not auto-recover external side effects.
 
----
-
-## Immediate Next Tasks
-1. Implement `POST /api/v1/devices` in `useDeviceRegistration`.
-2. Add dark mode support — token system is ready, needs a `useColorScheme`-aware token provider.
-3. Productize onboarding (multi-step flow, real fields — now can use the form foundation).
-4. Add zod runtime parsing to API responses (currently using TS interfaces only, no runtime guarantee).
+## Immediate Next Task
+Implement `POST /api/v1/devices` with boundary parsing and expose minimal registration status in settings dev section.

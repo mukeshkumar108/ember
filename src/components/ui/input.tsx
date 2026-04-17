@@ -37,7 +37,6 @@ export function Input({ label, error, hint, containerStyle, style, onFocus, onBl
         accessibilityHint={hint}
         // Announce error to VoiceOver when present
         accessibilityValue={error ? { text: error } : undefined}
-        accessibilityInvalid={!!error}
         style={[
           styles.input,
           isFocused ? styles.inputFocused : null,

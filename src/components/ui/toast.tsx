@@ -120,7 +120,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         <View pointerEvents="box-none" style={styles.viewport}>
           <Animated.View
             accessibilityLiveRegion="polite"
-            accessibilityRole="status"
+            accessibilityRole="alert"
             style={[
               styles.toast,
               toastTypeStyle[toast.type],

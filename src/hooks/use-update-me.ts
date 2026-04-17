@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from './use-api';
-import { ApiResponse, UpdateMeRequest, User } from '@/api/types';
+import { meResponseSchema } from '@/api/schemas';
+import { UpdateMeRequest } from '@/api/types';
+import { parseApiContract } from '@/api/validation';
 
 export function useUpdateMe() {
   const { request } = useApi();
@@ -8,10 +10,15 @@ export function useUpdateMe() {
 
   return useMutation({
     mutationFn: async (body: UpdateMeRequest) => {
-      const response = await request<ApiResponse<User>>('/api/v1/me', {
+      const rawResponse = await request<unknown>('/api/v1/me', {
         method: 'PATCH',
         body,
       });
+      const response = parseApiContract(
+        meResponseSchema,
+        rawResponse,
+        'PATCH /api/v1/me response',
+      );
 
       if (!response.success || !response.data) {
         throw new Error(response.error?.message || 'Failed to update account');
