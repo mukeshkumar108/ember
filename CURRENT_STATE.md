@@ -1,8 +1,8 @@
 # Project Status Report
 
 **Project**: Ember  
-**Checkpoint**: Device Registration Baseline (2026-04-17)  
-**Maturity**: 1.4.0 foundation
+**Checkpoint**: Contract Test Baseline (2026-04-17)  
+**Maturity**: 1.5.0 foundation
 
 ## What Is Solid
 - Public/protected routing and Clerk auth are wired.
@@ -14,6 +14,7 @@
 - **API boundary parsing is now runtime-validated with Zod** for active `/api/v1/me` read/write flows.
 - **App-level crash handling is now present** via `AppErrorBoundary` in `app/_layout.tsx`.
 - **Device registration baseline is implemented**: authenticated lifecycle attempts `POST /api/v1/devices` with validated response parsing and quiet environment fallbacks.
+- **Minimal high-value test layer is present**: Vitest contract tests + critical hook boundary tests.
 
 ## API Boundary Strategy (Current)
 - Backend payloads are requested as `unknown`.
@@ -41,6 +42,7 @@
 - Locale/timezone controls are curated starter options, not exhaustive global pickers.
 - Error boundary reset retries render path but does not auto-recover external side effects.
 - Expo Go/simulator environments may not provide a usable push token; Ember now reports this as skipped registration.
+- Device registration behavior is intentionally not deeply unit-tested due environment complexity; covered primarily through contract tests and runtime status visibility.
 
 ## Immediate Next Task
-Add foreground/background notification handling baseline (listener wiring only) without adding product-specific notification UI.
+Add one focused hook test around `useDeviceRegistration` skip/fail state transitions using lightweight mocks, only if it remains stable and low-maintenance.

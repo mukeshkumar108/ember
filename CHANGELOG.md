@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here.
 
+## [Contract Test Baseline] - 2026-04-17
+
+### Added
+- `vitest` test runner and `pnpm test` script.
+- `vitest.config.ts` with path alias support and node test environment.
+- Contract parsing tests for `/api/v1/me` and `/api/v1/devices`.
+- Critical hook boundary tests for:
+  - `useMe`
+  - `useUpdateMe`
+  - `useCompleteOnboarding`
+- Shared API fixtures for test readability (`src/test/fixtures/api.ts`).
+
+### Changed
+- Docs updated with minimal high-value test strategy and extension guidance.
+
 ## [Device Registration Baseline] - 2026-04-17
 
 ### Added

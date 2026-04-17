@@ -55,6 +55,12 @@ pnpm android
 pnpm start
 ```
 
+### 4. Test
+
+```bash
+pnpm test
+```
+
 ## Architecture
 
 ```
@@ -123,6 +129,20 @@ Use the internal playground route to validate primitives and interactions:
 - Toast, confirm modal, sheet
 - Async submit lifecycle
 - Keyboard-safe form demo route
+
+## Testing (Minimal High-Value Layer)
+
+Stack:
+- `vitest`
+
+Current focus:
+- API contract parsing tests for `/api/v1/me` and `/api/v1/devices`
+- critical hook boundary behavior tests (`useMe`, `useUpdateMe`, `useCompleteOnboarding`)
+
+Intentionally not a goal:
+- large visual snapshot suites
+- animation detail tests
+- broad coverage chasing
 
 ## Documentation Map
 

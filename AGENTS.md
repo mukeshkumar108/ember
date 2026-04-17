@@ -54,8 +54,15 @@ It is not a product and should stay domain-agnostic.
 - Keep edits surgical and task-scoped.
 - Prefer boring, readable code over clever abstractions.
 - Run verification before handoff:
+  - `pnpm test` (for boundary/hook changes)
   - `pnpm lint`
   - `pnpm exec tsc --noEmit`
+
+## Testing Rules
+1. Prioritize contract/boundary tests over broad UI snapshots.
+2. Add tests where backend drift would silently break starter behavior.
+3. Keep hook tests focused on unwrapping, error propagation, and cache invalidation behavior.
+4. Avoid brittle environment-heavy mocks unless they provide clear value.
 
 ## Required Handover Format
 1. Files added/removed/renamed.

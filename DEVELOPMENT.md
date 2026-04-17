@@ -115,3 +115,17 @@ Expected coverage:
 - Pattern: `request<unknown>` then `parseApiContract(registerDeviceResponseSchema, ...)`.
 - Keep flow non-blocking and idempotent.
 - For dev checks, read status from settings developer section.
+
+## 10) Testing Strategy
+
+- Test runner: `vitest` (`pnpm test`).
+- Keep tests concentrated on:
+  - contract parsing (`src/api/contracts.test.ts`)
+  - critical hook boundary behavior (`src/hooks/contracts-hooks.test.ts`)
+- Prefer small fixture-driven tests over large integration harnesses.
+- Avoid broad visual snapshot and animation-detail testing in this starter.
+
+### Adding another contract test
+1. Add a fixture in `src/test/fixtures/api.ts` (or local inline fixture if tiny).
+2. Parse with `parseApiContract(schema, payload, context)`.
+3. Assert success for valid payloads and `ApiContractError` for drifted payloads.
