@@ -1,79 +1,175 @@
+/**
+ * Playground: Standard validated form demo
+ *
+ * Demonstrates Ember's standard form pattern:
+ *   useForm + zodResolver → Controller → primitive + error prop
+ *   Server errors via setError('root') → errors.root.message
+ *   Submit disabled while loading, re-enabled on error
+ */
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { ErrorState, LoadingState } from '@/components/feedback';
-import { Button, Card, FormScreen, Input, TextArea } from '@/components/ui';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button, Card, Checkbox, FormScreen, Input, Select, TextArea } from '@/components/ui';
 import { tokens } from '@/styles/tokens';
 
+// ─── Schema ───────────────────────────────────────────────────────────────────
+// Defined inline here because it's playground-only. Real app schemas live in src/lib/schemas.ts.
+
+const demoSchema = z.object({
+  email: z.string().min(1, 'Email is required').email('Enter a valid email'),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
+  category: z.string().min(1, 'Please select a category'),
+  subscribe: z.boolean(),
+});
+
+type DemoFormData = z.infer<typeof demoSchema>;
+
+const CATEGORY_OPTIONS = [
+  { label: 'General', value: 'general' },
+  { label: 'Bug report', value: 'bug' },
+  { label: 'Feature request', value: 'feature' },
+];
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
+
 export default function PlaygroundFormScreen() {
-  const [email, setEmail] = React.useState('');
-  const [note, setNote] = React.useState('');
-  const [bottomField, setBottomField] = React.useState('');
-  const [submitState, setSubmitState] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [submitState, setSubmitState] = React.useState<'idle' | 'success'>('idle');
 
-  const handleSubmitDemo = async () => {
-    setSubmitState('loading');
-    await new Promise((resolve) => setTimeout(resolve, 900));
+  const {
+    control,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<DemoFormData>({
+    resolver: zodResolver(demoSchema),
+    defaultValues: {
+      email: '',
+      message: '',
+      category: '',
+      subscribe: false,
+    },
+  });
 
-    if (email.trim().toLowerCase().includes('error')) {
-      setSubmitState('error');
+  const onSubmit = handleSubmit(async (data) => {
+    // Simulate async API call
+    await new Promise<void>((resolve) => setTimeout(resolve, 900));
+
+    // Simulate a server-side error when email contains 'error'
+    if (data.email.includes('error')) {
+      setError('root', { message: 'Server rejected this email address. Try a different one.' });
       return;
     }
 
     setSubmitState('success');
-  };
+  });
+
+  if (submitState === 'success') {
+    return (
+      <FormScreen
+        title="Form Demo"
+        subtitle="The standard Ember validated form pattern.">
+        <Card>
+          <Text style={styles.successTitle}>Submitted successfully</Text>
+          <Text style={styles.successBody}>
+            Default values, field validation, server errors, and loading state all work.
+          </Text>
+          <Button
+            label="Reset demo"
+            variant="secondary"
+            onPress={() => {
+              reset();
+              setSubmitState('idle');
+            }}
+          />
+        </Card>
+      </FormScreen>
+    );
+  }
 
   return (
     <FormScreen
-      title="Keyboard-Safe Form Demo"
-      subtitle="Focus lower inputs to validate keyboard handling, then run submit lifecycle states."
-      footer={<Text style={styles.footer}>This route is internal playground-only.</Text>}>
+      title="Form Demo"
+      subtitle="Standard validated form: zod schema, field errors, server error, submit loading."
+      footer={<Text style={styles.footer}>Type &apos;error&apos; in the email field to trigger a server error.</Text>}>
       <Card>
-        <Text style={styles.description}>
-          This demo intentionally places multiple fields so keyboard handling and scroll behavior are easy to verify.
-        </Text>
-      </Card>
-
-      <Card>
-        <Input
-          autoCapitalize="none"
-          keyboardType="email-address"
-          label="Email"
-          onChangeText={setEmail}
-          value={email}
-        />
-        <TextArea
-          label="Quick note"
-          onChangeText={setNote}
-          value={note}
-        />
-        <Input
-          label="Bottom field"
-          onChangeText={setBottomField}
-          placeholder="Focus this field with keyboard open"
-          value={bottomField}
+        {/* Text input */}
+        <Controller
+          control={control}
+          name="email"
+          render={({ field, fieldState }) => (
+            <Input
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              label="Email"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
         />
 
-        {submitState === 'idle' ? <Text style={styles.note}>Submit to run loading/success/error states.</Text> : null}
-        {submitState === 'loading' ? <LoadingState message="Submitting..." /> : null}
-        {submitState === 'success' ? <Text style={styles.success}>Saved successfully.</Text> : null}
-        {submitState === 'error' ? (
-          <ErrorState
-            title="Submit failed"
-            message="Simulated async failure. Remove 'error' from email and retry."
-            onRetry={() => void handleSubmitDemo()}
-          />
+        {/* TextArea */}
+        <Controller
+          control={control}
+          name="message"
+          render={({ field, fieldState }) => (
+            <TextArea
+              label="Message"
+              placeholder="Minimum 10 characters…"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
+        />
+
+        {/* Select */}
+        <Controller
+          control={control}
+          name="category"
+          render={({ field, fieldState }) => (
+            <Select
+              label="Category"
+              placeholder="Select a category"
+              value={field.value}
+              options={CATEGORY_OPTIONS}
+              onValueChange={field.onChange}
+              error={fieldState.error?.message}
+            />
+          )}
+        />
+
+        {/* Checkbox */}
+        <Controller
+          control={control}
+          name="subscribe"
+          render={({ field }) => (
+            <Checkbox
+              label="Subscribe to updates"
+              description="Receive occasional product news."
+              checked={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+
+        {/* Server / root error */}
+        {errors.root ? (
+          <Text style={styles.serverError} accessibilityRole="alert">
+            {errors.root.message}
+          </Text>
         ) : null}
 
         <Button
-          disabled={submitState === 'loading'}
-          label="Run Async Submit Demo"
-          loading={submitState === 'loading'}
-          onPress={() => void handleSubmitDemo()}
-        />
-        <Button
-          label="Reset Demo State"
-          onPress={() => setSubmitState('idle')}
-          variant="secondary"
+          label="Submit"
+          loading={isSubmitting}
+          onPress={() => void onSubmit()}
         />
       </Card>
     </FormScreen>
@@ -81,24 +177,26 @@ export default function PlaygroundFormScreen() {
 }
 
 const styles = StyleSheet.create({
-  description: {
+  serverError: {
+    color: tokens.colors.danger,
+    fontSize: tokens.typography.sizes.sm,
+    textAlign: 'center',
+  },
+  successTitle: {
     color: tokens.colors.foreground,
+    fontSize: tokens.typography.sizes.lg,
+    fontWeight: tokens.typography.weights.bold,
+    textAlign: 'center',
+  },
+  successBody: {
+    color: tokens.colors.foregroundSecondary,
     fontSize: tokens.typography.sizes.base,
-    lineHeight: 22,
+    lineHeight: tokens.typography.sizes.base * tokens.typography.lineHeights.normal,
+    textAlign: 'center',
   },
   footer: {
     color: tokens.colors.muted,
     fontSize: tokens.typography.sizes.sm,
-    textAlign: 'center',
-  },
-  note: {
-    color: tokens.colors.muted,
-    fontSize: tokens.typography.sizes.sm,
-    textAlign: 'center',
-  },
-  success: {
-    color: tokens.colors.primary,
-    fontSize: tokens.typography.sizes.base,
     textAlign: 'center',
   },
 });

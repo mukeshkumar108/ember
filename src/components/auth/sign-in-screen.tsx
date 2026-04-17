@@ -1,13 +1,33 @@
 import { Link } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card, FormScreen, Input } from '@/components/ui';
 import { useEmailSignIn } from '@/hooks/auth/use-email-sign-in';
+import { signInSchema, type SignInFormData } from '@/lib/schemas';
 import { tokens } from '@/styles/tokens';
 
 export function SignInScreen() {
-  const { email, error, isLoaded, isSubmitting, onSubmit, password, setEmail, setPassword } =
-    useEmailSignIn();
+  const { submit, isSubmitting, isLoaded } = useEmailSignIn();
+
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      await submit(data);
+    } catch (e) {
+      setError('root', { message: e instanceof Error ? e.message : 'Sign in failed.' });
+    }
+  });
 
   return (
     <FormScreen
@@ -21,25 +41,48 @@ export function SignInScreen() {
         </Link>
       }>
       <Card>
-        <Input
-          autoCapitalize="none"
-          autoComplete="email"
-          keyboardType="email-address"
-          label="Email"
-          onChangeText={setEmail}
-          value={email}
-          error={error ?? undefined}
+        <Controller
+          control={control}
+          name="email"
+          render={({ field, fieldState }) => (
+            <Input
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              label="Email"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
         />
-        <Input
-          autoCapitalize="none"
-          autoComplete="password"
-          label="Password"
-          onChangeText={setPassword}
-          secureTextEntry
-          value={password}
+        <Controller
+          control={control}
+          name="password"
+          render={({ field, fieldState }) => (
+            <Input
+              autoCapitalize="none"
+              autoComplete="password"
+              label="Password"
+              secureTextEntry
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
         />
 
-        {!isLoaded ? <Text style={styles.infoText}>Preparing authentication...</Text> : null}
+        {errors.root ? (
+          <Text style={styles.serverError} accessibilityRole="alert">
+            {errors.root.message}
+          </Text>
+        ) : null}
+
+        {!isLoaded ? (
+          <Text style={styles.infoText}>Preparing authentication...</Text>
+        ) : null}
 
         <Button
           disabled={!isLoaded}
@@ -53,6 +96,11 @@ export function SignInScreen() {
 }
 
 const styles = StyleSheet.create({
+  serverError: {
+    color: tokens.colors.danger,
+    fontSize: tokens.typography.sizes.sm,
+    textAlign: 'center',
+  },
   infoText: {
     color: tokens.colors.muted,
     fontSize: tokens.typography.sizes.sm,

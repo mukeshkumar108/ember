@@ -120,12 +120,58 @@ Default `strokeWidth` is `1.75`. Increase to `2.25` for emphasis/active states.
 
 ### Rules
 - **No Ad Hoc Styles**: No new colors, spacing, or font sizes outside `tokens.ts`.
-- **Form Pattern**: Use `FormScreen` for any screen with text inputs.
+- **Form Pattern**: Use `FormScreen` for any screen with text inputs. See **Form System** section below.
 - **Feedback Pattern**: Use shared `LoadingState` and `ErrorState` for async states.
 - **Overlay Pattern**: Use `Sheet`, `ConfirmModal`, `Toast` before creating new overlay patterns.
 - **List Pattern**: Use `ListItem` + `Card variant="outlined"` for settings-style lists.
 - **Extend, Don't Duplicate**: Extend existing primitives over creating near-duplicate components.
 - **Playground Discipline**: Keep UI playground usage internal (`app/(protected)/(tabs)/playground.tsx`). All controls must be interactive or explicitly labeled visual-only.
+
+---
+
+## Form System
+
+Full reference: **[FORM_PATTERNS.md](./FORM_PATTERNS.md)**
+
+### Stack
+- **`react-hook-form`** — form state, submit handling, dirty/touched tracking
+- **`zod`** — schema-first validation (already installed)
+- **`@hookform/resolvers/zod`** — connects zod schemas to react-hook-form
+
+### The One Pattern
+```tsx
+const { control, handleSubmit, setError, formState: { errors, isSubmitting } } =
+  useForm<MyFormData>({ resolver: zodResolver(mySchema), defaultValues: { ... } });
+
+// Wrap each field in Controller
+<Controller control={control} name="email" render={({ field, fieldState }) => (
+  <Input value={field.value} onChangeText={field.onChange} onBlur={field.onBlur}
+         error={fieldState.error?.message} />
+)} />
+
+// Server errors → setError('root', { message }) → render errors.root?.message
+// Submit → <Button loading={isSubmitting} onPress={() => void handleSubmit(onSubmit)()} />
+```
+
+### Controller Bindings (quick ref)
+| Primitive | Value prop | Change prop |
+|-----------|-----------|-------------|
+| `Input` / `TextArea` | `value={field.value}` | `onChangeText={field.onChange}` |
+| `Select` | `value={field.value}` | `onValueChange={field.onChange}` |
+| `Checkbox` | `checked={field.value}` | `onChange={field.onChange}` |
+| `Toggle` | `value={field.value}` | `onValueChange={field.onChange}` |
+
+### Schemas
+- Shared schemas (auth, profile): `src/lib/schemas.ts`
+- Screen-specific schemas: define inline, above the component
+- Never put `useForm` inside a shared hook — the screen owns form state; hooks own async effects
+
+### Hard Rules
+- Do **not** create `<ControlledInput>` or `<FormField>` wrapper components
+- Do **not** use `useState` for form field values
+- Do **not** validate manually with `if (!email)` — use a zod schema
+- Always provide `defaultValues` to `useForm`
+- Server errors go on `'root'` key via `setError('root', { message })`; display with `accessibilityRole="alert"`
 
 ---
 

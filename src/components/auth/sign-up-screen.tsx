@@ -1,29 +1,52 @@
 import { Link } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card, FormScreen, Input } from '@/components/ui';
 import { useEmailSignUp } from '@/hooks/auth/use-email-sign-up';
+import {
+  signUpSchema,
+  verificationCodeSchema,
+  type SignUpFormData,
+  type VerificationCodeFormData,
+} from '@/lib/schemas';
 import { tokens } from '@/styles/tokens';
 
 export function SignUpScreen() {
-  const {
-    backToCredentials,
-    confirmPassword,
-    email,
-    error,
-    isLoaded,
-    isPendingVerification,
-    isSubmitting,
-    notice,
-    password,
-    setConfirmPassword,
-    setEmail,
-    setPassword,
-    setVerificationCode,
-    startSignUp,
-    verificationCode,
-    verifyEmail,
-  } = useEmailSignUp();
+  const { isLoaded, isSubmitting, isPendingVerification, notice, startSignUp, verifyEmail, backToCredentials } =
+    useEmailSignUp();
+
+  // Two separate forms — credentials step and verification step
+  const credentialsForm = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: { email: '', password: '', confirmPassword: '' },
+  });
+
+  const verificationForm = useForm<VerificationCodeFormData>({
+    resolver: zodResolver(verificationCodeSchema),
+    defaultValues: { code: '' },
+  });
+
+  const onStartSignUp = credentialsForm.handleSubmit(async (data) => {
+    try {
+      await startSignUp(data);
+    } catch (e) {
+      credentialsForm.setError('root', {
+        message: e instanceof Error ? e.message : 'Sign up failed.',
+      });
+    }
+  });
+
+  const onVerifyEmail = verificationForm.handleSubmit(async (data) => {
+    try {
+      await verifyEmail(data);
+    } catch (e) {
+      verificationForm.setError('root', {
+        message: e instanceof Error ? e.message : 'Verification failed.',
+      });
+    }
+  });
 
   return (
     <FormScreen
@@ -42,70 +65,112 @@ export function SignUpScreen() {
       }>
       <Card>
         {isPendingVerification ? (
-          <Input
-            autoCapitalize="none"
-            autoComplete="one-time-code"
-            keyboardType="number-pad"
-            label="Verification code"
-            onChangeText={setVerificationCode}
-            value={verificationCode}
-            error={error ?? undefined}
-          />
+          <>
+            <Controller
+              control={verificationForm.control}
+              name="code"
+              render={({ field, fieldState }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="one-time-code"
+                  keyboardType="number-pad"
+                  label="Verification code"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+
+            {notice ? <Text style={styles.noticeText}>{notice}</Text> : null}
+            {verificationForm.formState.errors.root ? (
+              <Text style={styles.serverError} accessibilityRole="alert">
+                {verificationForm.formState.errors.root.message}
+              </Text>
+            ) : null}
+            {!isLoaded ? <Text style={styles.infoText}>Preparing authentication...</Text> : null}
+
+            <View style={styles.buttonGroup}>
+              <Button
+                disabled={!isLoaded}
+                label="Verify and Continue"
+                loading={isSubmitting}
+                onPress={() => void onVerifyEmail()}
+              />
+              <Button
+                disabled={!isLoaded || isSubmitting}
+                label="Back"
+                onPress={backToCredentials}
+                variant="secondary"
+              />
+            </View>
+          </>
         ) : (
-          <View style={styles.fieldGroup}>
-            <Input
-              autoCapitalize="none"
-              autoComplete="email"
-              keyboardType="email-address"
-              label="Email"
-              onChangeText={setEmail}
-              value={email}
-              error={error ?? undefined}
+          <>
+            <Controller
+              control={credentialsForm.control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  keyboardType="email-address"
+                  label="Email"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                />
+              )}
             />
-            <Input
-              autoCapitalize="none"
-              autoComplete="new-password"
-              label="Password"
-              onChangeText={setPassword}
-              secureTextEntry
-              value={password}
+            <Controller
+              control={credentialsForm.control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="new-password"
+                  label="Password"
+                  secureTextEntry
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                />
+              )}
             />
-            <Input
-              autoCapitalize="none"
-              autoComplete="new-password"
-              label="Confirm password"
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              value={confirmPassword}
+            <Controller
+              control={credentialsForm.control}
+              name="confirmPassword"
+              render={({ field, fieldState }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="new-password"
+                  label="Confirm password"
+                  secureTextEntry
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                />
+              )}
             />
-          </View>
-        )}
 
-        {notice ? <Text style={styles.noticeText}>{notice}</Text> : null}
-        {!isLoaded ? <Text style={styles.infoText}>Preparing authentication...</Text> : null}
+            {credentialsForm.formState.errors.root ? (
+              <Text style={styles.serverError} accessibilityRole="alert">
+                {credentialsForm.formState.errors.root.message}
+              </Text>
+            ) : null}
+            {!isLoaded ? <Text style={styles.infoText}>Preparing authentication...</Text> : null}
 
-        {isPendingVerification ? (
-          <View style={styles.buttonGroup}>
             <Button
               disabled={!isLoaded}
-              label="Verify and Continue"
+              label="Create Account"
               loading={isSubmitting}
-              onPress={() => void verifyEmail()}
+              onPress={() => void onStartSignUp()}
             />
-            <Button
-              disabled={!isLoaded || isSubmitting}
-              label="Back"
-              onPress={backToCredentials}
-              variant="secondary"
-            />
-          </View>
-        ) : (
-          <Button
-            disabled={!isLoaded}
-            label="Create Account"
-            loading={isSubmitting}
-            onPress={() => void startSignUp()}
-          />
+          </>
         )}
       </Card>
     </FormScreen>
@@ -113,8 +178,10 @@ export function SignUpScreen() {
 }
 
 const styles = StyleSheet.create({
-  fieldGroup: {
-    gap: tokens.spacing.md,
+  serverError: {
+    color: tokens.colors.danger,
+    fontSize: tokens.typography.sizes.sm,
+    textAlign: 'center',
   },
   noticeText: {
     color: tokens.colors.primary,

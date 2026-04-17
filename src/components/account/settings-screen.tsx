@@ -1,5 +1,7 @@
 import React from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
 import { ErrorState, LoadingState } from '@/components/feedback';
@@ -7,16 +9,8 @@ import { Badge, Button, Card, Divider, FormScreen, Input, ListItem, Section, Sel
 import { API_URL } from '@/config';
 import { User } from '@/api/types';
 import { useMe, useUpdateMe } from '@/hooks';
+import { profileSchema, type ProfileFormData } from '@/lib/schemas';
 import { tokens } from '@/styles/tokens';
-
-type ProfileFormState = {
-  displayName: string;
-  firstName: string;
-  lastName: string;
-  bio: string;
-  locale: string;
-  timezone: string;
-};
 
 const LOCALE_OPTIONS = [
   { label: 'System Default', value: '' },
@@ -48,7 +42,7 @@ function withCurrentOption(
   return [{ label: `Current (${currentValue})`, value: currentValue }, ...options];
 }
 
-function toFormState(user: User): ProfileFormState {
+function toFormDefaults(user: User): ProfileFormData {
   return {
     displayName: user.profile.displayName ?? '',
     firstName: user.profile.firstName ?? '',
@@ -59,12 +53,6 @@ function toFormState(user: User): ProfileFormState {
   };
 }
 
-function toNullableString(value: string): string | null {
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-
 export function SettingsScreen() {
   const router = useRouter();
   const { signOut } = useAuth();
@@ -72,13 +60,27 @@ export function SettingsScreen() {
   const { data: user, error, isError, isLoading, refetch } = useMe();
   const updateMe = useUpdateMe();
 
-  const [form, setForm] = React.useState<ProfileFormState | null>(null);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      displayName: '',
+      firstName: '',
+      lastName: '',
+      bio: '',
+      locale: '',
+      timezone: '',
+    },
+  });
 
+  // Populate form once user data is available, and after a successful save
   React.useEffect(() => {
-    if (user && !form) {
-      setForm(toFormState(user));
-    }
-  }, [user, form]);
+    if (user) reset(toFormDefaults(user));
+  }, [user, reset]);
 
   const handleSignOut = async () => {
     try {
@@ -97,27 +99,24 @@ export function SettingsScreen() {
     );
   };
 
-  const handleSave = async () => {
-    if (!form) {
-      return;
-    }
+  const onSaveProfile = handleSubmit(async (data) => {
     try {
       const updated = await updateMe.mutateAsync({
         profile: {
-          displayName: toNullableString(form.displayName),
-          firstName: toNullableString(form.firstName),
-          lastName: toNullableString(form.lastName),
-          bio: toNullableString(form.bio),
-          locale: toNullableString(form.locale),
-          timezone: toNullableString(form.timezone),
+          displayName: data.displayName.trim() || null,
+          firstName: data.firstName.trim() || null,
+          lastName: data.lastName.trim() || null,
+          bio: data.bio.trim() || null,
+          locale: data.locale || null,
+          timezone: data.timezone || null,
         },
       });
-      setForm(toFormState(updated));
+      reset(toFormDefaults(updated));
       showToast({ message: 'Profile saved.', type: 'success' });
     } catch {
       showToast({ message: 'Could not save profile. Please retry.', type: 'error' });
     }
-  };
+  });
 
   if (isLoading && !user) {
     return <LoadingState fullScreen message="Loading settings…" />;
@@ -128,12 +127,12 @@ export function SettingsScreen() {
     return <ErrorState fullScreen message={message} onRetry={() => void refetch()} />;
   }
 
-  if (!user || !form) {
+  if (!user) {
     return <LoadingState fullScreen message="Preparing settings…" />;
   }
 
-  const localeOptions = withCurrentOption(LOCALE_OPTIONS, form.locale);
-  const timezoneOptions = withCurrentOption(TIMEZONE_OPTIONS, form.timezone);
+  const localeOptions = withCurrentOption(LOCALE_OPTIONS, user.profile.locale ?? '');
+  const timezoneOptions = withCurrentOption(TIMEZONE_OPTIONS, user.profile.timezone ?? '');
 
   return (
     <FormScreen
@@ -162,66 +161,104 @@ export function SettingsScreen() {
 
       <Section title="Profile">
         <Card>
-          <Input
-            label="Display name"
-            onChangeText={(displayName) => setForm((prev) => (prev ? { ...prev, displayName } : prev))}
-            value={form.displayName}
+          <Controller
+            control={control}
+            name="displayName"
+            render={({ field, fieldState }) => (
+              <Input
+                label="Display name"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                error={fieldState.error?.message}
+              />
+            )}
           />
           <View style={styles.nameRow}>
             <View style={styles.nameField}>
-              <Input
-                label="First name"
-                onChangeText={(firstName) => setForm((prev) => (prev ? { ...prev, firstName } : prev))}
-                value={form.firstName}
+              <Controller
+                control={control}
+                name="firstName"
+                render={({ field, fieldState }) => (
+                  <Input
+                    label="First name"
+                    value={field.value}
+                    onChangeText={field.onChange}
+                    onBlur={field.onBlur}
+                    error={fieldState.error?.message}
+                  />
+                )}
               />
             </View>
             <View style={styles.nameField}>
-              <Input
-                label="Last name"
-                onChangeText={(lastName) => setForm((prev) => (prev ? { ...prev, lastName } : prev))}
-                value={form.lastName}
+              <Controller
+                control={control}
+                name="lastName"
+                render={({ field, fieldState }) => (
+                  <Input
+                    label="Last name"
+                    value={field.value}
+                    onChangeText={field.onChange}
+                    onBlur={field.onBlur}
+                    error={fieldState.error?.message}
+                  />
+                )}
               />
             </View>
           </View>
-          <TextArea
-            label="Bio"
-            onChangeText={(bio) => setForm((prev) => (prev ? { ...prev, bio } : prev))}
-            value={form.bio}
+          <Controller
+            control={control}
+            name="bio"
+            render={({ field, fieldState }) => (
+              <TextArea
+                label="Bio"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                error={fieldState.error?.message}
+              />
+            )}
           />
-          <Select
-            label="Locale"
-            onValueChange={(locale) => setForm((prev) => (prev ? { ...prev, locale } : prev))}
-            options={localeOptions}
-            placeholder="Select locale"
-            value={form.locale}
+          <Controller
+            control={control}
+            name="locale"
+            render={({ field }) => (
+              <Select
+                label="Locale"
+                value={field.value}
+                onValueChange={field.onChange}
+                options={localeOptions}
+                placeholder="Select locale"
+              />
+            )}
           />
-          <Select
-            label="Timezone"
-            onValueChange={(timezone) => setForm((prev) => (prev ? { ...prev, timezone } : prev))}
-            options={timezoneOptions}
-            placeholder="Select timezone"
-            value={form.timezone}
+          <Controller
+            control={control}
+            name="timezone"
+            render={({ field }) => (
+              <Select
+                label="Timezone"
+                value={field.value}
+                onValueChange={field.onChange}
+                options={timezoneOptions}
+                placeholder="Select timezone"
+              />
+            )}
           />
           <Button
             label="Save Profile"
             loading={updateMe.isPending}
-            onPress={() => void handleSave()}
+            disabled={!isDirty}
+            onPress={() => void onSaveProfile()}
           />
         </Card>
       </Section>
 
       <Section title="Session">
         <Card variant="outlined" style={styles.listCard}>
-          <ListItem
-            title="Log Out"
-            onPress={() => void handleSignOut()}
-          />
+          <ListItem title="Log Out" onPress={() => void handleSignOut()} />
           <Divider />
-          <ListItem
-            title="Delete Account"
-            destructive
-            onPress={handleDeleteAccount}
-          />
+          <ListItem title="Delete Account" destructive onPress={handleDeleteAccount} />
         </Card>
       </Section>
 
@@ -230,6 +267,9 @@ export function SettingsScreen() {
           <Card>
             <Text style={styles.meta}>API: {API_URL}</Text>
             <Text style={styles.meta}>User ID: {user.id}</Text>
+            {errors.root ? (
+              <Text style={styles.meta}>Form error: {errors.root.message}</Text>
+            ) : null}
             <Button label="Refetch /me" onPress={() => void refetch()} variant="secondary" size="sm" />
             <Button
               label="Open UI Playground"

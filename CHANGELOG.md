@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## [Form Foundation] - 2026-04-17
+
+### Added
+- **`react-hook-form`** + **`@hookform/resolvers`** — installed as core dependencies
+- **`src/lib/schemas.ts`** — shared zod schemas: `signInSchema`, `signUpSchema`, `verificationCodeSchema`, `profileSchema` with TypeScript inferred types
+- **`FORM_PATTERNS.md`** — complete form reference: standard pattern, controller bindings for every primitive, multi-step forms, edit forms with `reset()`, zod guidelines, what not to do, practical "adding a new form" walkthrough
+
+### Changed
+- **`src/hooks/auth/use-email-sign-in.ts`** — stripped manual form state; now accepts `SignInFormData`, throws on error, returns `{ submit, isSubmitting, isLoaded }`
+- **`src/hooks/auth/use-email-sign-up.ts`** — stripped manual form state; now accepts typed data per step, throws on error, retains `isPendingVerification` flow state
+- **`src/components/auth/sign-in-screen.tsx`** — refactored to `useForm` + `Controller`; field-level zod errors; server error on `errors.root`
+- **`src/components/auth/sign-up-screen.tsx`** — refactored to two `useForm` instances (credentials step + verification step); field-level errors on both forms
+- **`src/components/account/settings-screen.tsx`** — profile section uses `useForm` + `Controller`; `reset(toFormDefaults(user))` on load/save; `isDirty` gates Save button; `toFormState`/manual state removed
+- **`app/(protected)/(tabs)/playground-form.tsx`** — replaced manual state demo with live validated form: `Input`, `TextArea`, `Select`, `Checkbox`, field errors, server error simulation, success path
+- **`AGENTS.md`** — added Form System section with hard rules, controller binding table, schema guidance
+
 ## [Accessibility & Apple Compliance Pass] - 2026-04-16
 
 ### Accessibility

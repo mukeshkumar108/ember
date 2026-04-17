@@ -1,8 +1,8 @@
 # Project Status Report
 
 **Project**: Ember Shell
-**Checkpoint**: Design System v2 — Premium Overhaul (2026-04-16)
-**Maturity**: 1.1.0
+**Checkpoint**: Form Foundation (2026-04-17)
+**Maturity**: 1.2.0
 
 ---
 
@@ -15,7 +15,8 @@
 - **Bootstrap contract**: `/api/v1/me` typed and unwrapped via `useMe`.
 - **Onboarding flow**: completes via `PATCH /api/v1/me` and routes into tabs.
 - **Protected guard**: fails closed on bootstrap failure with retry/sign-out.
-- **Account/Settings**: editable profile fields with `PATCH /api/v1/me` and `Toast` feedback.
+- **Account/Settings**: editable profile fields with `PATCH /api/v1/me`, `Toast` feedback, and `isDirty` save guard.
+- **Form foundation**: `react-hook-form` + `zod` integrated. All auth and profile forms use the standard pattern. Shared schemas in `src/lib/schemas.ts`. See `FORM_PATTERNS.md`.
 
 ### Design System (v2)
 - **Token system**: Comprehensive `tokens.ts` — colors (primary #007AFF, semantic variants), spacing (4–64), radius (full pill support), typography (xs–3xl with lineHeight multipliers), shadow presets, animation duration/spring constants.
@@ -64,4 +65,5 @@
 ## Immediate Next Tasks
 1. Implement `POST /api/v1/devices` in `useDeviceRegistration`.
 2. Add dark mode support — token system is ready, needs a `useColorScheme`-aware token provider.
-3. Productize onboarding (multi-step flow, real fields).
+3. Productize onboarding (multi-step flow, real fields — now can use the form foundation).
+4. Add zod runtime parsing to API responses (currently using TS interfaces only, no runtime guarantee).

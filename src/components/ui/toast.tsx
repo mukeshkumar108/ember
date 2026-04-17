@@ -103,7 +103,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         animateOut();
       }, payload.durationMs ?? 3000);
     },
-    [animateOut, clearHideTimer, opacity, translateY],
+    [animateOut, clearHideTimer, opacity, reduceMotion, translateY],
   );
 
   React.useEffect(() => () => clearHideTimer(), [clearHideTimer]);
