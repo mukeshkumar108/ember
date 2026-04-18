@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, View, type PressableProps, type ViewProps, type StyleProp, type ViewStyle } from 'react-native';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type CardVariant = 'default' | 'elevated' | 'outlined';
 
@@ -18,24 +19,44 @@ type PressableCardProps = Omit<PressableProps, 'style'> & {
  * Static card container.
  */
 export function Card({ style, variant = 'default', ...props }: CardProps) {
-  return <View style={[styles.base, variantStyles[variant], style]} {...props} />;
+  const { colors } = useTheme();
+  const variantStyle = cardVariantStyle(variant, colors);
+  return <View style={[staticStyles.base, variantStyle, style]} {...props} />;
 }
 
 /**
  * Tappable card — for list rows, settings cells, and any pressable surface.
  */
 export function PressableCard({ style, variant = 'default', children, ...props }: PressableCardProps) {
+  const { colors } = useTheme();
+  const variantStyle = cardVariantStyle(variant, colors);
   return (
     <Pressable
       accessibilityRole="button"
-      style={({ pressed }) => [styles.base, variantStyles[variant], pressed ? styles.pressed : null, style]}
+      style={({ pressed }) => [
+        staticStyles.base,
+        variantStyle,
+        pressed ? staticStyles.pressed : null,
+        style,
+      ]}
       {...props}>
       {children}
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+function cardVariantStyle(variant: CardVariant, colors: ReturnType<typeof useTheme>['colors']) {
+  switch (variant) {
+    case 'elevated':
+      return { backgroundColor: colors.backgroundElevated, ...tokens.shadow.md };
+    case 'outlined':
+      return { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border };
+    default:
+      return { backgroundColor: colors.backgroundSecondary };
+  }
+}
+
+const staticStyles = StyleSheet.create({
   base: {
     borderRadius: tokens.radius.lg,
     padding: tokens.spacing.lg,
@@ -43,20 +64,5 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.7,
-  },
-});
-
-const variantStyles = StyleSheet.create({
-  default: {
-    backgroundColor: tokens.colors.backgroundSecondary,
-  },
-  elevated: {
-    backgroundColor: tokens.colors.background,
-    ...tokens.shadow.md,
-  },
-  outlined: {
-    backgroundColor: tokens.colors.background,
-    borderWidth: 1,
-    borderColor: tokens.colors.border,
   },
 });

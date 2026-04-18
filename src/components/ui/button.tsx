@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -32,6 +33,7 @@ export function Button({
   onPress,
   ...props
 }: ButtonProps) {
+  const { colors } = useTheme();
   const isDisabled = disabled || loading;
 
   const handlePress: PressableProps['onPress'] = (e) => {
@@ -41,36 +43,57 @@ export function Button({
     onPress?.(e);
   };
 
+  const variantBg: Record<ButtonVariant, string> = {
+    primary: colors.primary,
+    secondary: 'transparent',
+    danger: colors.danger,
+    ghost: 'transparent',
+  };
+
+  const variantBorder: Record<ButtonVariant, object> = {
+    primary: {},
+    secondary: { borderWidth: 1.5, borderColor: colors.border },
+    danger: {},
+    ghost: {},
+  };
+
+  const variantTextColor: Record<ButtonVariant, string> = {
+    primary: '#FFFFFF',
+    secondary: colors.foreground,
+    danger: '#FFFFFF',
+    ghost: colors.primary,
+  };
+
+  const indicatorColor = variant === 'secondary' || variant === 'ghost' ? colors.primary : '#FFFFFF';
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={loading ? `${label}, loading` : label}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={({ pressed }) => [
-        styles.base,
+        staticStyles.base,
         sizeStyles[size],
-        variantStyles[variant],
-        pressed && !isDisabled ? styles.pressed : null,
-        isDisabled ? styles.disabled : null,
+        { backgroundColor: variantBg[variant] },
+        variantBorder[variant],
+        pressed && !isDisabled ? staticStyles.pressed : null,
+        isDisabled ? staticStyles.disabled : null,
         style,
       ]}
       disabled={isDisabled}
       onPress={handlePress}
       {...props}>
-      {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={variant === 'secondary' || variant === 'ghost' ? tokens.colors.primary : tokens.colors.background}
-        />
-      ) : null}
-      <Text style={[styles.textBase, textSizeStyles[size], textVariantStyles[variant]]} accessibilityElementsHidden>
+      {loading ? <ActivityIndicator size="small" color={indicatorColor} /> : null}
+      <Text
+        style={[staticStyles.textBase, textSizeStyles[size], { color: variantTextColor[variant] }]}
+        accessibilityElementsHidden>
         {label}
       </Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   base: {
     borderRadius: tokens.radius.md,
     alignItems: 'center',
@@ -79,7 +102,7 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
   },
   textBase: {
-    fontWeight: tokens.typography.weights.semibold,
+    fontFamily: tokens.typography.fonts.semibold,
   },
   disabled: {
     opacity: 0.45,
@@ -107,46 +130,8 @@ const sizeStyles = StyleSheet.create({
   },
 });
 
-const variantStyles = StyleSheet.create({
-  primary: {
-    backgroundColor: tokens.colors.primary,
-  },
-  secondary: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: tokens.colors.border,
-  },
-  danger: {
-    backgroundColor: tokens.colors.danger,
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-  },
-});
-
-const textVariantStyles = StyleSheet.create({
-  primary: {
-    color: tokens.colors.background,
-  },
-  secondary: {
-    color: tokens.colors.foreground,
-  },
-  danger: {
-    color: tokens.colors.background,
-  },
-  ghost: {
-    color: tokens.colors.primary,
-  },
-});
-
 const textSizeStyles = StyleSheet.create({
-  sm: {
-    fontSize: tokens.typography.sizes.sm,
-  },
-  md: {
-    fontSize: tokens.typography.sizes.base,
-  },
-  lg: {
-    fontSize: tokens.typography.sizes.lg,
-  },
+  sm: { fontSize: tokens.typography.sizes.sm },
+  md: { fontSize: tokens.typography.sizes.base },
+  lg: { fontSize: tokens.typography.sizes.lg },
 });

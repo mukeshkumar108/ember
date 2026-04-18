@@ -12,6 +12,7 @@ import {
 import { ChevronDown } from 'lucide-react-native';
 import { Sheet } from './sheet';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 export type SelectOption = {
   label: string;
@@ -41,11 +42,11 @@ export function Select({
   disabled = false,
   containerStyle,
 }: SelectProps) {
+  const { colors } = useTheme();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   const selectedOption = options.find((o) => o.value === value);
   const selectedLabel = selectedOption?.label ?? '';
 
-  // Compose a full accessible label: "Locale, English (US)" or "Locale, Select an option"
   const accessibleLabel = label
     ? `${label}, ${selectedLabel || placeholder}`
     : selectedLabel || placeholder;
@@ -70,10 +71,15 @@ export function Select({
     }
   };
 
+  const borderColor = error ? colors.danger : colors.border;
+
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[staticStyles.container, containerStyle]}>
       {label ? (
-        <Text style={styles.label} accessibilityElementsHidden importantForAccessibility="no">
+        <Text
+          style={[staticStyles.label, { color: colors.foreground }]}
+          accessibilityElementsHidden
+          importantForAccessibility="no">
           {label}
         </Text>
       ) : null}
@@ -86,23 +92,30 @@ export function Select({
         disabled={disabled}
         onPress={handleOpen}
         style={({ pressed }) => [
-          styles.trigger,
-          error ? styles.triggerError : null,
-          disabled ? styles.disabled : null,
-          pressed && !disabled ? styles.pressed : null,
+          staticStyles.trigger,
+          { borderColor, backgroundColor: colors.background },
+          disabled ? staticStyles.disabled : null,
+          pressed && !disabled ? staticStyles.pressed : null,
         ]}>
-        <Text style={selectedLabel ? styles.valueText : styles.placeholderText} numberOfLines={1}>
+        <Text
+          style={[
+            staticStyles.valueText,
+            { color: selectedLabel ? colors.foreground : colors.muted },
+          ]}
+          numberOfLines={1}>
           {selectedLabel || placeholder}
         </Text>
-        <ChevronDown size={16} color={tokens.colors.muted} strokeWidth={2} />
+        <ChevronDown size={16} color={colors.muted} strokeWidth={2} />
       </Pressable>
 
       {error ? (
-        <Text style={styles.error} accessibilityRole="alert">
+        <Text style={[staticStyles.helperText, { color: colors.danger }]} accessibilityRole="alert">
           {error}
         </Text>
       ) : null}
-      {hint && !error ? <Text style={styles.hint}>{hint}</Text> : null}
+      {hint && !error ? (
+        <Text style={[staticStyles.helperText, { color: colors.muted }]}>{hint}</Text>
+      ) : null}
 
       {/* Android-only sheet picker */}
       {Platform.OS !== 'ios' ? (
@@ -110,7 +123,7 @@ export function Select({
           visible={isSheetOpen}
           onClose={() => setIsSheetOpen(false)}
           title={label ?? 'Select an option'}>
-          <View style={styles.optionList}>
+          <View style={staticStyles.optionList}>
             {options.map((option) => {
               const isSelected = option.value === value;
               return (
@@ -124,11 +137,16 @@ export function Select({
                     setIsSheetOpen(false);
                   }}
                   style={({ pressed }) => [
-                    styles.optionButton,
-                    isSelected ? styles.optionSelected : null,
-                    pressed ? styles.pressed : null,
+                    staticStyles.optionButton,
+                    isSelected ? { backgroundColor: `${colors.primary}14` } : null,
+                    pressed ? staticStyles.pressed : null,
                   ]}>
-                  <Text style={[styles.optionText, isSelected ? styles.optionTextSelected : null]}>
+                  <Text
+                    style={[
+                      staticStyles.optionText,
+                      { color: isSelected ? colors.primary : colors.foreground },
+                      isSelected ? staticStyles.optionTextSelected : null,
+                    ]}>
                     {option.label}
                   </Text>
                 </Pressable>
@@ -141,47 +159,32 @@ export function Select({
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   container: {
     gap: tokens.spacing.xs,
   },
   label: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.semibold,
     fontSize: tokens.typography.sizes.sm,
-    fontWeight: tokens.typography.weights.semibold,
   },
   trigger: {
     minHeight: 50,
     borderWidth: 1.5,
-    borderColor: tokens.colors.border,
     borderRadius: tokens.radius.md,
     paddingHorizontal: tokens.spacing.lg,
     paddingVertical: tokens.spacing.md,
-    backgroundColor: tokens.colors.background,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: tokens.spacing.sm,
   },
-  triggerError: {
-    borderColor: tokens.colors.danger,
-  },
   valueText: {
     flex: 1,
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.base,
   },
-  placeholderText: {
-    flex: 1,
-    color: tokens.colors.muted,
-    fontSize: tokens.typography.sizes.base,
-  },
-  error: {
-    color: tokens.colors.danger,
-    fontSize: tokens.typography.sizes.sm,
-  },
-  hint: {
-    color: tokens.colors.muted,
+  helperText: {
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
   },
   disabled: {
@@ -199,15 +202,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.spacing.lg,
     justifyContent: 'center',
   },
-  optionSelected: {
-    backgroundColor: `${tokens.colors.primary}14`,
-  },
   optionText: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.base,
   },
   optionTextSelected: {
-    color: tokens.colors.primary,
-    fontWeight: tokens.typography.weights.semibold,
+    fontFamily: tokens.typography.fonts.semibold,
   },
 });

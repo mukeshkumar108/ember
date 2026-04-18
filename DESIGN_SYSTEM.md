@@ -6,15 +6,13 @@ Reference guide for customizing, extending, and building with the Ember UI syste
 
 ## 1. First Things to Change Per Project
 
-When you fork Ember for a new product, these are the **only** token changes needed to re-skin the entire app:
+When you fork Ember for a new product, these are the **only** changes needed to re-skin the entire app:
 
 ```ts
-// src/styles/tokens.ts — touch these first
-colors: {
-  primary: '#007AFF',      // ← your brand accent (buttons, links, focus rings, toggles)
-  danger:  '#FF3B30',      // ← usually keep iOS red unless brand requires otherwise
-  success: '#34C759',      // ← usually keep iOS green
-}
+// src/styles/colors.ts — update both lightColors and darkColors
+primary: '#007AFF',      // ← your brand accent (buttons, links, focus rings, toggles)
+danger:  '#FF3B30',      // ← usually keep iOS red unless brand requires otherwise
+success: '#34C759',      // ← usually keep iOS green
 ```
 
 Everything else — spacing, radius, typography, shadows — is already calibrated for iOS-feel and rarely needs changing early on.
@@ -33,21 +31,29 @@ import { tokens } from '@/styles/tokens';
 
 ### Colors
 
-| Token | Value | Use for |
-|---|---|---|
-| `background` | `#FFFFFF` | Screen backgrounds, input fill |
-| `backgroundSecondary` | `#F2F2F7` | Card fill, grouped list backgrounds |
-| `foreground` | `#000000` | Primary text, headings |
-| `foregroundSecondary` | `#636366` | Labels, metadata, secondary text |
-| `muted` | `#8E8E93` | Placeholders, hints, disabled text, icons |
-| `primary` | `#007AFF` | CTA buttons, focus rings, links, active states |
-| `success` | `#34C759` | Confirmations, positive status |
-| `warning` | `#FF9500` | Caution states |
-| `danger` | `#FF3B30` | Errors, destructive actions |
-| `border` | `#E5E5EA` | Input borders, separators, hairlines |
-| `overlay` | `rgba(0,0,0,0.40)` | Modal/sheet backdrops |
+Colors are theme-aware and come from the `ThemeProvider` via `useTheme()`. There are two palettes (`lightColors` / `darkColors`) in `src/styles/colors.ts` with identical key shapes. Components always call `useTheme()` — never read `tokens.colors` directly.
 
-**Never use raw hex values in components.** If you need a color that doesn't exist, add it to `tokens.ts` first.
+```tsx
+import { useTheme } from '@/providers/theme-provider';
+const { colors, isDark } = useTheme();
+```
+
+| Token | Light | Dark | Use for |
+|---|---|---|---|
+| `background` | `#FFFFFF` | `#000000` | Screen backgrounds, input fill |
+| `backgroundSecondary` | `#F2F2F7` | `#1C1C1E` | Card fill, grouped list backgrounds |
+| `backgroundElevated` | `#FFFFFF` | `#2C2C2E` | Sheets, modals, elevated cards |
+| `foreground` | `#000000` | `#FFFFFF` | Primary text, headings |
+| `foregroundSecondary` | `#636366` | `#AEAEB2` | Labels, metadata, secondary text |
+| `muted` | `#8E8E93` | `#6E6E73` | Placeholders, hints, disabled text, icons |
+| `primary` | `#007AFF` | `#0A84FF` | CTA buttons, focus rings, links, active states |
+| `success` | `#34C759` | `#30D158` | Confirmations, positive status |
+| `warning` | `#FF9500` | `#FF9F0A` | Caution states |
+| `danger` | `#FF3B30` | `#FF453A` | Errors, destructive actions |
+| `border` | `#E5E5EA` | `#38383A` | Input borders, separators, hairlines |
+| `overlay` | `rgba(0,0,0,0.40)` | `rgba(0,0,0,0.60)` | Modal/sheet backdrops |
+
+**Never use raw hex values in components.** If you need a new color, add it to **both** `lightColors` and `darkColors` in `src/styles/colors.ts`, then access it through `useTheme().colors`.
 
 ### Spacing (4pt grid)
 
@@ -72,7 +78,18 @@ Use `md` for inputs and buttons. `lg` for cards and sheets. `full` for badges, a
 xs: 11   sm: 13   base: 16   lg: 20   xl: 24   2xl: 28   3xl: 34
 ```
 
-**Weights:** `regular (400)` `medium (500)` `semibold (600)` `bold (700)`
+**Font families (Inter):** use `tokens.typography.fonts.*` instead of `fontWeight`
+
+```ts
+fontFamily: tokens.typography.fonts.regular    // Inter_400Regular
+fontFamily: tokens.typography.fonts.medium     // Inter_500Medium
+fontFamily: tokens.typography.fonts.semibold   // Inter_600SemiBold
+fontFamily: tokens.typography.fonts.bold       // Inter_700Bold
+```
+
+> Do NOT pair `fontFamily` from `fonts.*` with a `fontWeight` override — the font name encodes the weight and `fontWeight` will be ignored on iOS.
+
+**Weights (backwards-compat only):** `tokens.typography.weights.*` — prefer `fonts.*` for all new code.
 
 **Line heights** — multiply by font size:
 ```ts
@@ -350,33 +367,71 @@ function MyScreen() {
 
 ---
 
-## 6. Adding New Tokens
+## 6. Dark Mode Rules
 
-Only add to `tokens.ts` — never inline values.
+Dark mode is implemented via `ThemeProvider` (`src/providers/theme-provider.tsx`), which subscribes to `useColorScheme()` and provides `{ colors, isDark }` to every component via `useTheme()`.
 
-```ts
-// 1. Add to the right group in tokens.ts
-colors: {
-  // ...existing
-  brand: '#FF6B35',        // project-specific accent
-  brandSubtle: '#FFF0EA',  // tinted background for brand-colored elements
+**Component pattern — split layout from colors:**
+
+```tsx
+import { useTheme } from '@/providers/theme-provider';
+
+export function MyComponent({ style }) {
+  const { colors } = useTheme();    // always call at component top
+  return (
+    <View style={[staticStyles.container, { backgroundColor: colors.background }, style]}>
+      <Text style={[staticStyles.title, { color: colors.foreground }]}>Hello</Text>
+    </View>
+  );
 }
 
-// 2. Use immediately in components
-backgroundColor: tokens.colors.brandSubtle
+// Layout only — no color values here
+const staticStyles = StyleSheet.create({
+  container: { borderRadius: tokens.radius.md, padding: tokens.spacing.lg },
+  title: { fontFamily: tokens.typography.fonts.bold, fontSize: tokens.typography.sizes.lg },
+});
 ```
 
-For dark mode: the token system is structured so you can wrap the `tokens` object in a `useColorScheme` provider and swap the palette. The structure is ready; the dark palette just needs values.
+**Rules:**
+- Layout (`borderRadius`, `padding`, `gap`, font size/family) → `StyleSheet.create` as `staticStyles`
+- Colors (`backgroundColor`, `color`, `borderColor`, `tintColor`) → inline style objects using `colors.*`
+- Use `colors.backgroundElevated` for sheets, modals, and elevated cards (not `colors.background`)
+- Use `isDark` only when a color decision genuinely cannot be expressed as a token (e.g. Badge's WCAG AA contrast override)
+- `AppErrorBoundary` is a class component; it uses `tokens.colors` (light palette) as a known acceptable limitation
+
+## 7. Adding New Tokens
+
+Add color tokens to **both palettes** in `src/styles/colors.ts` — never to `tokens.ts` directly and never inline:
+
+```ts
+// src/styles/colors.ts
+export const lightColors = {
+  // ...existing
+  brand: '#FF6B35',
+  brandSubtle: '#FFF0EA',
+};
+export const darkColors = {
+  // ...existing
+  brand: '#FF8C5A',       // ← brighter in dark for visibility
+  brandSubtle: '#3A1F10', // ← dark-appropriate tint
+};
+
+// In components:
+const { colors } = useTheme();
+<View style={{ backgroundColor: colors.brandSubtle }} />
+```
+
+For non-color tokens (spacing, radius, animation), add to `src/styles/tokens.ts` as before.
 
 ---
 
-## 7. Adding New Components
+## 8. Adding New Components
 
 Follow these conventions:
 
 1. **File**: `src/components/ui/my-component.tsx`
 2. **Export**: named export, no default export
-3. **Tokens**: all values from `tokens.ts`
+3. **Tokens**: layout from `tokens.ts`; colors from `useTheme().colors`
 4. **Props**: type as `MyComponentProps`, `StyleProp<ViewStyle>` for style overrides
 5. **Export from index**: add to `src/components/ui/index.ts`
 6. **Demo in playground**: add to `app/(protected)/(tabs)/playground.tsx`
@@ -388,19 +443,22 @@ Minimal template:
 import React from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type MyComponentProps = {
   style?: StyleProp<ViewStyle>;
 };
 
 export function MyComponent({ style }: MyComponentProps) {
-  return <View style={[styles.container, style]} />;
+  const { colors } = useTheme();
+  return (
+    <View style={[staticStyles.container, { backgroundColor: colors.backgroundSecondary }, style]} />
+  );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   container: {
     borderRadius: tokens.radius.md,
-    backgroundColor: tokens.colors.backgroundSecondary,
     padding: tokens.spacing.lg,
   },
 });
@@ -408,7 +466,7 @@ const styles = StyleSheet.create({
 
 ---
 
-## 8. Animation Conventions
+## 9. Animation Conventions
 
 Use **Reanimated 4** for any animated component. Never use core `Animated` from React Native for new work.
 
@@ -425,14 +483,11 @@ For gestures (swipe, drag), use `react-native-gesture-handler`. If inside a Moda
 
 ---
 
-## 9. What's Intentionally Not Here
+## 10. What's Intentionally Not Here
 
 | Thing | Why |
 |---|---|
-| Dark mode palette | Token structure is ready. Add dark values when product requires it. |
-| Custom fonts | Add `@expo-google-fonts/inter` + `useFonts()` in `_layout.tsx` when brand typography is decided. |
 | Push notifications | `useDeviceRegistration` is the stub. Wire with `expo-notifications` when ready. |
 | i18n / localization | Add `i18next` + `react-i18next` when product requires multiple languages. |
-| Offline/network state | Add `@react-native-community/netinfo` + a banner component when offline UX is needed. |
 | Analytics | Add as a side-effect in `_layout.tsx` or a provider. Never inside UI primitives. |
-| Form validation library | `zod` is installed for API types. Add `react-hook-form` + `@hookform/resolvers` when form complexity warrants it. |
+| Theme switching UI | User-facing theme toggle is a product concern. The `ThemeProvider` already respects the system setting — no toggle needed for the baseline. |

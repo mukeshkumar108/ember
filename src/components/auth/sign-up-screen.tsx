@@ -12,8 +12,10 @@ import {
   type VerificationCodeFormData,
 } from '@/lib/schemas';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 export function SignUpScreen() {
+  const { colors } = useTheme();
   const { isLoaded, isSubmitting, isPendingVerification, notice, startSignUp, verifyEmail, backToCredentials } =
     useEmailSignUp();
 
@@ -59,7 +61,7 @@ export function SignUpScreen() {
       footer={
         <Link asChild href="/(public)/sign-in">
           <Pressable>
-            <Text style={styles.linkText}>Already have an account? Sign in</Text>
+            <Text style={[staticStyles.linkText, { color: colors.primary }]}>Already have an account? Sign in</Text>
           </Pressable>
         </Link>
       }>
@@ -83,15 +85,19 @@ export function SignUpScreen() {
               )}
             />
 
-            {notice ? <Text style={styles.noticeText}>{notice}</Text> : null}
+            {notice ? (
+              <Text style={[staticStyles.noticeText, { color: colors.primary }]}>{notice}</Text>
+            ) : null}
             {verificationForm.formState.errors.root ? (
-              <Text style={styles.serverError} accessibilityRole="alert">
+              <Text style={[staticStyles.serverError, { color: colors.danger }]} accessibilityRole="alert">
                 {verificationForm.formState.errors.root.message}
               </Text>
             ) : null}
-            {!isLoaded ? <Text style={styles.infoText}>Preparing authentication...</Text> : null}
+            {!isLoaded ? (
+              <Text style={[staticStyles.infoText, { color: colors.muted }]}>Preparing authentication...</Text>
+            ) : null}
 
-            <View style={styles.buttonGroup}>
+            <View style={staticStyles.buttonGroup}>
               <Button
                 disabled={!isLoaded}
                 label="Verify and Continue"
@@ -158,11 +164,13 @@ export function SignUpScreen() {
             />
 
             {credentialsForm.formState.errors.root ? (
-              <Text style={styles.serverError} accessibilityRole="alert">
+              <Text style={[staticStyles.serverError, { color: colors.danger }]} accessibilityRole="alert">
                 {credentialsForm.formState.errors.root.message}
               </Text>
             ) : null}
-            {!isLoaded ? <Text style={styles.infoText}>Preparing authentication...</Text> : null}
+            {!isLoaded ? (
+              <Text style={[staticStyles.infoText, { color: colors.muted }]}>Preparing authentication...</Text>
+            ) : null}
 
             <Button
               disabled={!isLoaded}
@@ -177,18 +185,18 @@ export function SignUpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   serverError: {
-    color: tokens.colors.danger,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
   },
   noticeText: {
-    color: tokens.colors.primary,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
   },
   infoText: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
   },
@@ -196,9 +204,8 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
   },
   linkText: {
-    color: tokens.colors.primary,
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.medium,
     textAlign: 'center',
   },
 });

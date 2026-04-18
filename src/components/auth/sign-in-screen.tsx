@@ -7,8 +7,10 @@ import { Button, Card, FormScreen, Input } from '@/components/ui';
 import { useEmailSignIn } from '@/hooks/auth/use-email-sign-in';
 import { signInSchema, type SignInFormData } from '@/lib/schemas';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 export function SignInScreen() {
+  const { colors } = useTheme();
   const { submit, isSubmitting, isLoaded } = useEmailSignIn();
 
   const {
@@ -36,7 +38,7 @@ export function SignInScreen() {
       footer={
         <Link asChild href="/(public)/sign-up">
           <Pressable>
-            <Text style={styles.linkText}>Need an account? Sign up</Text>
+            <Text style={[staticStyles.linkText, { color: colors.primary }]}>Need an account? Sign up</Text>
           </Pressable>
         </Link>
       }>
@@ -75,13 +77,13 @@ export function SignInScreen() {
         />
 
         {errors.root ? (
-          <Text style={styles.serverError} accessibilityRole="alert">
+          <Text style={[staticStyles.serverError, { color: colors.danger }]} accessibilityRole="alert">
             {errors.root.message}
           </Text>
         ) : null}
 
         {!isLoaded ? (
-          <Text style={styles.infoText}>Preparing authentication...</Text>
+          <Text style={[staticStyles.infoText, { color: colors.muted }]}>Preparing authentication...</Text>
         ) : null}
 
         <Button
@@ -95,21 +97,20 @@ export function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   serverError: {
-    color: tokens.colors.danger,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
   },
   infoText: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
   },
   linkText: {
-    color: tokens.colors.primary,
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.medium,
     textAlign: 'center',
   },
 });

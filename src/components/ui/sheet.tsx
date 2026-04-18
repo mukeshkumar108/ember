@@ -19,6 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 import { useReduceMotion } from '@/hooks';
 
 const OFFSCREEN_Y = 600;
@@ -44,6 +45,7 @@ export function Sheet({
   closeOnBackdropPress = true,
   contentStyle,
 }: SheetProps) {
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const reduceMotion = useReduceMotion();
   const [isMounted, setIsMounted] = React.useState(false);
@@ -99,7 +101,6 @@ export function Sheet({
   const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: translateY.value }] }));
   const backdropStyle = useAnimatedStyle(() => ({ opacity: backdropOpacity.value }));
 
-  // Bottom padding: respect the home indicator but ensure minimum breathing room
   const bottomPad = Math.max(insets.bottom, tokens.spacing.lg);
 
   if (!isMounted) return null;
@@ -111,45 +112,46 @@ export function Sheet({
       visible={isMounted}
       onRequestClose={onClose}
       accessibilityViewIsModal>
-      {/* GestureHandlerRootView required — Modal renders outside the app root tree */}
-      <GestureHandlerRootView style={styles.flex}>
-        <View style={styles.root}>
+      <GestureHandlerRootView style={staticStyles.flex}>
+        <View style={staticStyles.root}>
 
-          {/* Dim backdrop */}
           <Pressable
             style={StyleSheet.absoluteFill}
             onPress={closeOnBackdropPress ? onClose : undefined}>
-            <Animated.View style={[styles.backdrop, backdropStyle]} />
+            <Animated.View style={[staticStyles.backdrop, { backgroundColor: colors.overlay }, backdropStyle]} />
           </Pressable>
 
-          {/* Sheet panel — plain View so background reaches physical screen bottom */}
-          <Animated.View style={[styles.panel, contentStyle, sheetStyle]}>
+          <Animated.View
+            style={[
+              staticStyles.panel,
+              { backgroundColor: colors.backgroundElevated },
+              contentStyle,
+              sheetStyle,
+            ]}>
 
-            {/* Drag handle */}
             <GestureDetector gesture={swipeGesture}>
-              <View style={styles.handleArea}>
-                <View style={styles.handle} />
+              <View style={staticStyles.handleArea}>
+                <View style={[staticStyles.handle, { backgroundColor: colors.border }]} />
               </View>
             </GestureDetector>
 
-            {title ? <Text style={styles.title}>{title}</Text> : null}
+            {title ? (
+              <Text style={[staticStyles.title, { color: colors.foreground }]}>{title}</Text>
+            ) : null}
 
-            {/* Scrollable body — flex:1 so it yields space to the pinned footer */}
             <ScrollView
               bounces={false}
-              contentContainerStyle={styles.scrollContent}
+              contentContainerStyle={staticStyles.scrollContent}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}>
               {children}
             </ScrollView>
 
-            {/* Footer pinned outside scroll, always visible */}
             {footer ? (
-              <View style={[styles.footer, { paddingBottom: bottomPad }]}>
+              <View style={[staticStyles.footer, { paddingBottom: bottomPad, borderTopColor: colors.border }]}>
                 {footer}
               </View>
             ) : (
-              // Safe-area spacer when there's no footer
               <View style={{ height: bottomPad }} />
             )}
 
@@ -160,7 +162,7 @@ export function Sheet({
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   flex: {
     flex: 1,
   },
@@ -170,14 +172,11 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: tokens.colors.overlay,
   },
   panel: {
-    backgroundColor: tokens.colors.background,
     borderTopLeftRadius: tokens.radius.xl,
     borderTopRightRadius: tokens.radius.xl,
     maxHeight: '88%',
-    // Top-edge shadow so the sheet lifts off the content below it
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.10,
@@ -193,12 +192,10 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: tokens.radius.full,
-    backgroundColor: tokens.colors.border,
   },
   title: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.bold,
     fontSize: tokens.typography.sizes.lg,
-    fontWeight: tokens.typography.weights.bold,
     paddingHorizontal: tokens.spacing.xl,
     paddingBottom: tokens.spacing.sm,
   },
@@ -212,7 +209,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.spacing.xl,
     paddingTop: tokens.spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: tokens.colors.border,
     gap: tokens.spacing.sm,
   },
 });

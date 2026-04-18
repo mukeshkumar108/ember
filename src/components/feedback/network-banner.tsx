@@ -3,8 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNetworkStatus } from '@/hooks';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 export function NetworkBanner() {
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const network = useNetworkStatus();
 
@@ -13,22 +15,21 @@ export function NetworkBanner() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + tokens.spacing.xs }]}>
-      <Text style={styles.text}>You are offline. Some actions may fail until connectivity returns.</Text>
+    <View style={[staticStyles.container, { backgroundColor: colors.warning, paddingTop: insets.top + tokens.spacing.xs }]}>
+      <Text style={staticStyles.text}>You are offline. Some actions may fail until connectivity returns.</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   container: {
-    backgroundColor: tokens.colors.warning,
     paddingHorizontal: tokens.spacing.lg,
     paddingBottom: tokens.spacing.sm,
   },
   text: {
-    color: tokens.colors.background,
+    color: '#FFFFFF', // warning background is always high-contrast; white text passes AA in both themes
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.sm,
-    fontWeight: tokens.typography.weights.medium,
     textAlign: 'center',
   },
 });

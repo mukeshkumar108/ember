@@ -1,3 +1,4 @@
+export { useTheme } from '@/providers/theme-provider';
 export * from './use-api';
 export * from './use-me';
 export * from './use-device-registration';

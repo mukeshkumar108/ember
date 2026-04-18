@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Button } from './button';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 import { useReduceMotion } from '@/hooks';
 
 type ConfirmModalProps = {
@@ -31,6 +32,7 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const { colors } = useTheme();
   const reduceMotion = useReduceMotion();
   const scale = useSharedValue(0.92);
   const opacity = useSharedValue(0);
@@ -63,25 +65,27 @@ export function ConfirmModal({
       visible={visible}
       onRequestClose={onCancel}
       accessibilityViewIsModal>
-      <View style={styles.root}>
+      <View style={staticStyles.root}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onCancel}>
-          <Animated.View style={[styles.backdrop, backdropStyle]} />
+          <Animated.View
+            style={[staticStyles.backdrop, { backgroundColor: colors.overlay }, backdropStyle]}
+          />
         </Pressable>
 
         <Animated.View
-          style={[styles.modal, tokens.shadow.lg, panelStyle]}
+          style={[staticStyles.modal, { backgroundColor: colors.backgroundElevated }, tokens.shadow.lg, panelStyle]}
           accessibilityRole="alert">
-          <View style={styles.textContent}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.message}>{message}</Text>
+          <View style={staticStyles.textContent}>
+            <Text style={[staticStyles.title, { color: colors.foreground }]}>{title}</Text>
+            <Text style={[staticStyles.message, { color: colors.foregroundSecondary }]}>{message}</Text>
           </View>
 
           {/* Side-by-side action buttons — matches native iOS alert pattern */}
-          <View style={styles.actions}>
-            <View style={styles.actionButton}>
+          <View style={[staticStyles.actions, { borderTopColor: colors.border }]}>
+            <View style={staticStyles.actionButton}>
               <Button label={cancelLabel} onPress={onCancel} variant="secondary" />
             </View>
-            <View style={styles.actionButton}>
+            <View style={staticStyles.actionButton}>
               <Button
                 label={confirmLabel}
                 onPress={onConfirm}
@@ -95,7 +99,7 @@ export function ConfirmModal({
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'center',
@@ -103,10 +107,8 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: tokens.colors.overlay,
   },
   modal: {
-    backgroundColor: tokens.colors.background,
     borderRadius: tokens.radius.xl,
     overflow: 'hidden',
   },
@@ -115,13 +117,12 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
   },
   title: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.bold,
     fontSize: tokens.typography.sizes.lg,
-    fontWeight: tokens.typography.weights.bold,
     textAlign: 'center',
   },
   message: {
-    color: tokens.colors.foregroundSecondary,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.base,
     lineHeight: tokens.typography.sizes.base * tokens.typography.lineHeights.normal,
     textAlign: 'center',
@@ -129,7 +130,6 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: tokens.colors.border,
     gap: tokens.spacing.sm,
     padding: tokens.spacing.lg,
   },

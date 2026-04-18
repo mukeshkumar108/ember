@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type ListItemProps = {
   title: string;
@@ -36,29 +37,42 @@ export function ListItem({
   disabled = false,
   style,
 }: ListItemProps) {
+  const { colors } = useTheme();
   const showChevron = onPress && trailing === undefined;
+
+  const titleColor = destructive ? colors.danger : colors.foreground;
 
   const content = (
     <>
-      {leading ? <View style={styles.leading}>{leading}</View> : null}
+      {leading ? <View style={staticStyles.leading}>{leading}</View> : null}
 
-      <View style={styles.textGroup}>
+      <View style={staticStyles.textGroup}>
         <Text
-          style={[styles.title, destructive ? styles.titleDestructive : null, disabled ? styles.disabled : null]}
+          style={[
+            staticStyles.title,
+            { color: titleColor },
+            disabled ? staticStyles.disabledText : null,
+          ]}
           numberOfLines={1}>
           {title}
         </Text>
         {subtitle ? (
-          <Text style={[styles.subtitle, disabled ? styles.disabled : null]} numberOfLines={1}>
+          <Text
+            style={[
+              staticStyles.subtitle,
+              { color: colors.foregroundSecondary },
+              disabled ? staticStyles.disabledText : null,
+            ]}
+            numberOfLines={1}>
             {subtitle}
           </Text>
         ) : null}
       </View>
 
       {trailing !== undefined ? (
-        <View style={styles.trailing}>{trailing}</View>
+        <View style={staticStyles.trailing}>{trailing}</View>
       ) : showChevron ? (
-        <ChevronRight size={16} color={tokens.colors.muted} strokeWidth={2} />
+        <ChevronRight size={16} color={colors.muted} strokeWidth={2} />
       ) : null}
     </>
   );
@@ -73,9 +87,10 @@ export function ListItem({
         disabled={disabled}
         onPress={onPress}
         style={({ pressed }) => [
-          styles.row,
-          pressed && !disabled ? styles.pressed : null,
-          disabled ? styles.rowDisabled : null,
+          staticStyles.row,
+          { backgroundColor: colors.background },
+          pressed && !disabled ? { backgroundColor: colors.backgroundSecondary } : null,
+          disabled ? staticStyles.rowDisabled : null,
           style,
         ]}>
         {content}
@@ -83,10 +98,14 @@ export function ListItem({
     );
   }
 
-  return <View style={[styles.row, disabled ? styles.rowDisabled : null, style]}>{content}</View>;
+  return (
+    <View style={[staticStyles.row, { backgroundColor: colors.background }, disabled ? staticStyles.rowDisabled : null, style]}>
+      {content}
+    </View>
+  );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   row: {
     minHeight: 52,
     flexDirection: 'row',
@@ -94,7 +113,6 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.md,
     paddingHorizontal: tokens.spacing.lg,
     paddingVertical: tokens.spacing.md,
-    backgroundColor: tokens.colors.background,
     borderRadius: tokens.radius.md,
   },
   leading: {
@@ -106,28 +124,20 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.medium,
-  },
-  titleDestructive: {
-    color: tokens.colors.danger,
   },
   subtitle: {
-    color: tokens.colors.foregroundSecondary,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
   },
   trailing: {
     alignItems: 'flex-end',
   },
-  disabled: {
+  disabledText: {
     opacity: 0.45,
   },
   rowDisabled: {
     opacity: 0.45,
-  },
-  pressed: {
-    opacity: 0.7,
-    backgroundColor: tokens.colors.backgroundSecondary,
   },
 });

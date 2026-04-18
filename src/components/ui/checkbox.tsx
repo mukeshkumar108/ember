@@ -4,6 +4,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } fr
 import { Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 import { useReduceMotion } from '@/hooks';
 
 type CheckboxProps = {
@@ -25,6 +26,7 @@ export function Checkbox({
   error,
   style,
 }: CheckboxProps) {
+  const { colors } = useTheme();
   const reduceMotion = useReduceMotion();
   const scale = useSharedValue(1);
 
@@ -44,8 +46,13 @@ export function Checkbox({
     onChange(!checked);
   };
 
+  const boxStyle = {
+    borderColor: checked ? colors.primary : colors.border,
+    backgroundColor: checked ? colors.primary : colors.background,
+  };
+
   return (
-    <View style={[styles.container, style]}>
+    <View style={[staticStyles.container, style]}>
       <Pressable
         accessibilityRole="checkbox"
         accessibilityLabel={description ? `${label}, ${description}` : label}
@@ -53,24 +60,28 @@ export function Checkbox({
         disabled={disabled}
         onPress={handlePress}
         style={({ pressed }) => [
-          styles.row,
-          disabled ? styles.disabled : null,
-          pressed && !disabled ? styles.pressed : null,
+          staticStyles.row,
+          disabled ? staticStyles.disabled : null,
+          pressed && !disabled ? staticStyles.pressed : null,
         ]}>
-        <Animated.View style={[styles.box, checked ? styles.boxChecked : null, animatedBoxStyle]}>
-          {checked ? <Check size={13} color={tokens.colors.background} strokeWidth={3} /> : null}
+        <Animated.View style={[staticStyles.box, boxStyle, animatedBoxStyle]}>
+          {checked ? <Check size={13} color="#FFFFFF" strokeWidth={3} /> : null}
         </Animated.View>
-        <View style={styles.textGroup}>
-          <Text style={styles.label}>{label}</Text>
-          {description ? <Text style={styles.description}>{description}</Text> : null}
+        <View style={staticStyles.textGroup}>
+          <Text style={[staticStyles.label, { color: colors.foreground }]}>{label}</Text>
+          {description ? (
+            <Text style={[staticStyles.description, { color: colors.muted }]}>{description}</Text>
+          ) : null}
         </View>
       </Pressable>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text style={[staticStyles.error, { color: colors.danger }]}>{error}</Text>
+      ) : null}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   container: {
     gap: tokens.spacing.xs,
   },
@@ -86,33 +97,26 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: tokens.radius.sm,
     borderWidth: 1.5,
-    borderColor: tokens.colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: tokens.colors.background,
-    marginTop: 1, // optical alignment with label text
-  },
-  boxChecked: {
-    borderColor: tokens.colors.primary,
-    backgroundColor: tokens.colors.primary,
+    marginTop: 1,
   },
   textGroup: {
     flex: 1,
     gap: tokens.spacing.xs,
   },
   label: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.medium,
     lineHeight: tokens.typography.sizes.base * tokens.typography.lineHeights.normal,
   },
   description: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     lineHeight: tokens.typography.sizes.sm * tokens.typography.lineHeights.relaxed,
   },
   error: {
-    color: tokens.colors.danger,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
   },
   disabled: {

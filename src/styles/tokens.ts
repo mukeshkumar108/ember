@@ -1,36 +1,22 @@
 /**
  * Design Tokens — Ember UI System
  *
- * Single source of truth for all visual constants. Every component must
- * consume values from this file — no ad-hoc colors, spacing, or sizing.
+ * Single source of truth for non-color visual constants (spacing, typography,
+ * radius, shadows, animation). Colors live in `src/styles/colors.ts` and are
+ * accessed via `useTheme().colors` in components.
  *
- * Color system uses iOS semantic naming conventions so the palette reads
- * intuitively when building native-feeling UIs.
+ * `tokens.colors` is kept as a light-palette alias for backwards-compatible
+ * contexts (tests, SSR, class components). Prefer `useTheme().colors` in all
+ * React components so dark mode works correctly.
  */
+import { lightColors } from './colors';
 
 export const tokens = {
-  colors: {
-    // --- Backgrounds ---
-    background: '#FFFFFF',
-    backgroundSecondary: '#F2F2F7', // grouped content, cards
-
-    // --- Text ---
-    foreground: '#000000',
-    foregroundSecondary: '#636366', // secondary labels, metadata
-    muted: '#8E8E93', // placeholders, hints, disabled text
-
-    // --- Brand ---
-    primary: '#007AFF', // iOS system blue — buttons, links, active states
-
-    // --- Semantic ---
-    success: '#34C759', // iOS system green
-    warning: '#FF9500', // iOS system orange
-    danger: '#FF3B30', // iOS system red
-
-    // --- Chrome ---
-    border: '#E5E5EA', // separators, input borders
-    overlay: 'rgba(0, 0, 0, 0.40)', // modal/sheet backdrops
-  },
+  /**
+   * Backwards-compatible color alias — equals the light palette.
+   * Use `useTheme().colors` in components instead of `tokens.colors`.
+   */
+  colors: lightColors,
 
   spacing: {
     xs: 4,
@@ -61,12 +47,30 @@ export const tokens = {
       '2xl': 28, // title 1
       '3xl': 34, // large title
     },
+
+    /**
+     * Font family names matching the loaded Inter variants.
+     * Use these instead of `weights` in stylesheets — the named variant
+     * encodes both family and weight, which Android requires.
+     */
+    fonts: {
+      regular: 'Inter_400Regular',
+      medium: 'Inter_500Medium',
+      semibold: 'Inter_600SemiBold',
+      bold: 'Inter_700Bold',
+    },
+
+    /**
+     * Kept for backwards compatibility and system-font fallback contexts.
+     * Prefer `fonts.*` in new component styles.
+     */
     weights: {
       regular: '400' as const,
       medium: '500' as const,
       semibold: '600' as const,
       bold: '700' as const,
     },
+
     // Multiply by font size to get lineHeight
     lineHeights: {
       tight: 1.2,

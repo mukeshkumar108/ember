@@ -3,30 +3,33 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Compass, Home, Settings } from 'lucide-react-native';
 import { HapticTab } from '@/components/ui/haptic-tab';
+import { useTheme } from '@/providers/theme-provider';
 import { tokens } from '@/styles/tokens';
 
 const TAB_ICON_SIZE = 24;
 const TAB_ICON_STROKE = 1.75;
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarActiveTintColor: tokens.colors.primary,
-        tabBarInactiveTintColor: tokens.colors.muted,
-        tabBarLabelStyle: styles.label,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.muted,
+        tabBarLabelStyle: staticStyles.label,
         tabBarStyle: Platform.select({
           ios: {
             // Transparent so the native blur shows through on iOS
             position: 'absolute',
-            borderTopColor: tokens.colors.border,
+            borderTopColor: colors.border,
             borderTopWidth: 0.5,
           },
           default: {
-            backgroundColor: tokens.colors.background,
-            borderTopColor: tokens.colors.border,
+            backgroundColor: colors.background,
+            borderTopColor: colors.border,
             borderTopWidth: 0.5,
             elevation: 0,
           },
@@ -81,10 +84,10 @@ export default function TabLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   label: {
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.xs,
-    fontWeight: tokens.typography.weights.medium,
     letterSpacing: 0.2,
   },
 });

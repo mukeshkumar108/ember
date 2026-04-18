@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type EmptyStateProps = {
   title: string;
@@ -11,20 +12,23 @@ type EmptyStateProps = {
 };
 
 export function EmptyState({ title, description, icon: IconComponent }: EmptyStateProps) {
+  const { colors } = useTheme();
   return (
-    <View style={styles.container}>
+    <View style={staticStyles.container}>
       {IconComponent ? (
-        <View style={styles.iconContainer}>
-          <IconComponent size={28} color={tokens.colors.muted} strokeWidth={1.5} />
+        <View style={[staticStyles.iconContainer, { backgroundColor: colors.backgroundSecondary }]}>
+          <IconComponent size={28} color={colors.muted} strokeWidth={1.5} />
         </View>
       ) : null}
-      <Text style={styles.title}>{title}</Text>
-      {description ? <Text style={styles.description}>{description}</Text> : null}
+      <Text style={[staticStyles.title, { color: colors.foreground }]}>{title}</Text>
+      {description ? (
+        <Text style={[staticStyles.description, { color: colors.muted }]}>{description}</Text>
+      ) : null}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -35,19 +39,17 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: tokens.radius.full,
-    backgroundColor: tokens.colors.backgroundSecondary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: tokens.spacing.xs,
   },
   title: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.semibold,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.semibold,
     textAlign: 'center',
   },
   description: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
     lineHeight: tokens.typography.sizes.sm * tokens.typography.lineHeights.relaxed,

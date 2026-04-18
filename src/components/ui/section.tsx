@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, type ViewProps } from 'react-native';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type SectionProps = ViewProps & {
   title?: string;
@@ -14,12 +15,16 @@ type SectionProps = ViewProps & {
  * of iOS grouped list sections (not competing with screen page titles).
  */
 export function Section({ title, description, style, children, ...props }: SectionProps) {
+  const { colors } = useTheme();
+
   return (
-    <View style={[styles.container, style]} {...props}>
+    <View style={[staticStyles.container, style]} {...props}>
       {title ? (
-        <View style={styles.header}>
-          <Text style={styles.title}>{title.toUpperCase()}</Text>
-          {description ? <Text style={styles.description}>{description}</Text> : null}
+        <View style={staticStyles.header}>
+          <Text style={[staticStyles.title, { color: colors.muted }]}>{title.toUpperCase()}</Text>
+          {description ? (
+            <Text style={[staticStyles.description, { color: colors.muted }]}>{description}</Text>
+          ) : null}
         </View>
       ) : null}
       {children}
@@ -27,7 +32,7 @@ export function Section({ title, description, style, children, ...props }: Secti
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   container: {
     gap: tokens.spacing.sm,
   },
@@ -36,13 +41,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.spacing.xs,
   },
   title: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.semibold,
     fontSize: tokens.typography.sizes.xs,
-    fontWeight: tokens.typography.weights.semibold,
     letterSpacing: 0.8,
   },
   description: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     lineHeight: tokens.typography.sizes.sm * tokens.typography.lineHeights.relaxed,
   },

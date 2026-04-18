@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, Card, Checkbox, FormScreen, Input, Select, TextArea } from '@/components/ui';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 // Defined inline here because it's playground-only. Real app schemas live in src/lib/schemas.ts.
@@ -35,6 +36,7 @@ const CATEGORY_OPTIONS = [
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function PlaygroundFormScreen() {
+  const { colors } = useTheme();
   const [submitState, setSubmitState] = React.useState<'idle' | 'success'>('idle');
 
   const {
@@ -72,8 +74,8 @@ export default function PlaygroundFormScreen() {
         title="Form Demo"
         subtitle="The standard Ember validated form pattern.">
         <Card>
-          <Text style={styles.successTitle}>Submitted successfully</Text>
-          <Text style={styles.successBody}>
+          <Text style={[staticStyles.successTitle, { color: colors.foreground }]}>Submitted successfully</Text>
+          <Text style={[staticStyles.successBody, { color: colors.foregroundSecondary }]}>
             Default values, field validation, server errors, and loading state all work.
           </Text>
           <Button
@@ -93,7 +95,7 @@ export default function PlaygroundFormScreen() {
     <FormScreen
       title="Form Demo"
       subtitle="Standard validated form: zod schema, field errors, server error, submit loading."
-      footer={<Text style={styles.footer}>Type &apos;error&apos; in the email field to trigger a server error.</Text>}>
+      footer={<Text style={[staticStyles.footer, { color: colors.muted }]}>Type &apos;error&apos; in the email field to trigger a server error.</Text>}>
       <Card>
         {/* Text input */}
         <Controller
@@ -161,7 +163,7 @@ export default function PlaygroundFormScreen() {
 
         {/* Server / root error */}
         {errors.root ? (
-          <Text style={styles.serverError} accessibilityRole="alert">
+          <Text style={[staticStyles.serverError, { color: colors.danger }]} accessibilityRole="alert">
             {errors.root.message}
           </Text>
         ) : null}
@@ -176,26 +178,25 @@ export default function PlaygroundFormScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   serverError: {
-    color: tokens.colors.danger,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
   },
   successTitle: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.bold,
     fontSize: tokens.typography.sizes.lg,
-    fontWeight: tokens.typography.weights.bold,
     textAlign: 'center',
   },
   successBody: {
-    color: tokens.colors.foregroundSecondary,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.base,
     lineHeight: tokens.typography.sizes.base * tokens.typography.lineHeights.normal,
     textAlign: 'center',
   },
   footer: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
   },

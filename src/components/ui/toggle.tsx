@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Switch as RNSwitch, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type ToggleProps = {
   label: string;
@@ -20,31 +21,35 @@ export function Toggle({
   description,
   style,
 }: ToggleProps) {
+  const { colors } = useTheme();
+
   const handleChange = (next: boolean) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onValueChange(next);
   };
 
   return (
-    <View style={[styles.container, disabled ? styles.disabled : null, style]}>
-      <View style={styles.textGroup}>
-        <Text style={styles.label}>{label}</Text>
-        {description ? <Text style={styles.description}>{description}</Text> : null}
+    <View style={[staticStyles.container, disabled ? staticStyles.disabled : null, style]}>
+      <View style={staticStyles.textGroup}>
+        <Text style={[staticStyles.label, { color: colors.foreground }]}>{label}</Text>
+        {description ? (
+          <Text style={[staticStyles.description, { color: colors.muted }]}>{description}</Text>
+        ) : null}
       </View>
       <RNSwitch
         accessibilityLabel={label}
         disabled={disabled}
         onValueChange={handleChange}
-        thumbColor={tokens.colors.background}
-        trackColor={{ false: tokens.colors.border, true: tokens.colors.primary }}
-        ios_backgroundColor={tokens.colors.border}
+        thumbColor="#FFFFFF"
+        trackColor={{ false: colors.border, true: colors.primary }}
+        ios_backgroundColor={colors.border}
         value={value}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   container: {
     minHeight: 44,
     flexDirection: 'row',
@@ -57,12 +62,11 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.xs,
   },
   label: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.medium,
   },
   description: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     lineHeight: tokens.typography.sizes.sm * tokens.typography.lineHeights.relaxed,
   },

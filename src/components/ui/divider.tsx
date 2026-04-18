@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type DividerProps = {
   /** Optional centered label — useful for "or" dividers between form sections */
@@ -10,31 +11,31 @@ type DividerProps = {
 };
 
 export function Divider({ label, orientation = 'horizontal', style }: DividerProps) {
+  const { colors } = useTheme();
+
   if (orientation === 'vertical') {
-    return <View style={[styles.vertical, style]} />;
+    return <View style={[staticStyles.vertical, { backgroundColor: colors.border }, style]} />;
   }
 
   if (label) {
     return (
-      <View style={[styles.row, style]}>
-        <View style={styles.line} />
-        <Text style={styles.label}>{label}</Text>
-        <View style={styles.line} />
+      <View style={[staticStyles.row, style]}>
+        <View style={[staticStyles.line, { backgroundColor: colors.border }]} />
+        <Text style={[staticStyles.label, { color: colors.muted }]}>{label}</Text>
+        <View style={[staticStyles.line, { backgroundColor: colors.border }]} />
       </View>
     );
   }
 
-  return <View style={[styles.horizontal, style]} />;
+  return <View style={[staticStyles.horizontal, { backgroundColor: colors.border }, style]} />;
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   horizontal: {
     height: 1,
-    backgroundColor: tokens.colors.border,
   },
   vertical: {
     width: 1,
-    backgroundColor: tokens.colors.border,
     alignSelf: 'stretch',
   },
   row: {
@@ -45,11 +46,9 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: tokens.colors.border,
   },
   label: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.sm,
-    fontWeight: tokens.typography.weights.medium,
   },
 });

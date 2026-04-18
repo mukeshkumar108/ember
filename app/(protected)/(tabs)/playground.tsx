@@ -26,8 +26,10 @@ import {
   useToast,
 } from '@/components/ui';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 export default function PlaygroundScreen() {
+  const { colors } = useTheme();
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -55,7 +57,7 @@ export default function PlaygroundScreen() {
     // keyboardAware + scroll so inputs push up when keyboard opens
     <Screen header="Playground" scroll keyboardAware>
       <Section title="About">
-        <Text style={styles.note}>
+        <Text style={[staticStyles.note, { color: colors.muted }]}>
           Internal validation surface for Ember UI primitives. All controls are interactive.
         </Text>
       </Section>
@@ -65,11 +67,11 @@ export default function PlaygroundScreen() {
         <Button label="Secondary" onPress={() => undefined} variant="secondary" />
         <Button label="Danger" onPress={() => undefined} variant="danger" />
         <Button label="Ghost" onPress={() => undefined} variant="ghost" />
-        <View style={styles.row}>
-          <View style={styles.flex}>
+        <View style={staticStyles.row}>
+          <View style={staticStyles.flex}>
             <Button label="Small" onPress={() => undefined} size="sm" />
           </View>
-          <View style={styles.flex}>
+          <View style={staticStyles.flex}>
             <Button label="Large" onPress={() => undefined} size="lg" />
           </View>
         </View>
@@ -143,57 +145,57 @@ export default function PlaygroundScreen() {
 
       <Section title="Cards">
         <Card>
-          <Text style={styles.cardTitle}>Default Card</Text>
-          <Text style={styles.cardBody}>Uses backgroundSecondary fill. Good for grouped form fields.</Text>
+          <Text style={[staticStyles.cardTitle, { color: colors.foreground }]}>Default Card</Text>
+          <Text style={[staticStyles.cardBody, { color: colors.foregroundSecondary }]}>Uses backgroundSecondary fill. Good for grouped form fields.</Text>
         </Card>
         <Card variant="elevated">
-          <Text style={styles.cardTitle}>Elevated Card</Text>
-          <Text style={styles.cardBody}>White background with shadow — for content cards.</Text>
+          <Text style={[staticStyles.cardTitle, { color: colors.foreground }]}>Elevated Card</Text>
+          <Text style={[staticStyles.cardBody, { color: colors.foregroundSecondary }]}>White background with shadow — for content cards.</Text>
         </Card>
         <Card variant="outlined">
-          <Text style={styles.cardTitle}>Outlined Card</Text>
-          <Text style={styles.cardBody}>Border only — for subtle grouping.</Text>
+          <Text style={[staticStyles.cardTitle, { color: colors.foreground }]}>Outlined Card</Text>
+          <Text style={[staticStyles.cardBody, { color: colors.foregroundSecondary }]}>Border only — for subtle grouping.</Text>
         </Card>
         <PressableCard onPress={() => showToast({ message: 'Pressable card tapped.', type: 'info' })}>
-          <Text style={styles.cardTitle}>Pressable Card</Text>
-          <Text style={styles.cardBody}>Tap me — press state and haptics built in.</Text>
+          <Text style={[staticStyles.cardTitle, { color: colors.foreground }]}>Pressable Card</Text>
+          <Text style={[staticStyles.cardBody, { color: colors.foregroundSecondary }]}>Tap me — press state and haptics built in.</Text>
         </PressableCard>
       </Section>
 
       <Section title="Badge / Tag">
-        <View style={styles.row}>
+        <View style={staticStyles.row}>
           <Badge label="Primary" variant="primary" />
           <Badge label="Success" variant="success" />
           <Badge label="Warning" variant="warning" />
           <Badge label="Danger" variant="danger" />
           <Badge label="Neutral" variant="neutral" />
         </View>
-        <View style={styles.row}>
+        <View style={staticStyles.row}>
           <Badge label="Small" variant="primary" size="sm" />
           <Badge label="Medium" variant="primary" size="md" />
         </View>
       </Section>
 
       <Section title="Avatar">
-        <View style={styles.row}>
+        <View style={staticStyles.row}>
           <Avatar name="Mukesh Kumar" size="sm" />
           <Avatar name="Jane Doe" size="md" />
           <Avatar name="John Smith" size="lg" />
           <Avatar name="Alice Brown" size="xl" />
         </View>
-        <View style={styles.row}>
+        <View style={staticStyles.row}>
           <Avatar name="No Image" size="md" />
           <Avatar size="md" />
         </View>
       </Section>
 
       <Section title="Icon">
-        <View style={styles.row}>
-          <Icon icon={Layers} size={24} color={tokens.colors.foreground} />
-          <Icon icon={Layers} size={24} color={tokens.colors.primary} />
-          <Icon icon={Layers} size={24} color={tokens.colors.success} />
-          <Icon icon={Layers} size={24} color={tokens.colors.danger} />
-          <Icon icon={Layers} size={24} color={tokens.colors.muted} />
+        <View style={staticStyles.row}>
+          <Icon icon={Layers} size={24} />
+          <Icon icon={Layers} size={24} color={colors.primary} />
+          <Icon icon={Layers} size={24} color={colors.success} />
+          <Icon icon={Layers} size={24} color={colors.danger} />
+          <Icon icon={Layers} size={24} color={colors.muted} />
         </View>
       </Section>
 
@@ -203,7 +205,7 @@ export default function PlaygroundScreen() {
       </Section>
 
       <Section title="List Items">
-        <Card variant="outlined" style={styles.listCard}>
+        <Card variant="outlined" style={staticStyles.listCard}>
           <ListItem
             title="Simple row"
             onPress={() => showToast({ message: 'Row tapped.', type: 'info' })}
@@ -218,7 +220,7 @@ export default function PlaygroundScreen() {
           <ListItem
             title="With icon"
             subtitle="Leading slot"
-            leading={<Icon icon={Layers} size={20} color={tokens.colors.primary} />}
+            leading={<Icon icon={Layers} size={20} color={colors.primary} />}
             onPress={() => undefined}
           />
           <Divider />
@@ -238,12 +240,12 @@ export default function PlaygroundScreen() {
       <Section title="Skeleton / Loading Placeholders">
         <SkeletonListItem />
         <SkeletonListItem />
-        <Skeleton width="80%" height={16} style={styles.skeletonGap} />
+        <Skeleton width="80%" height={16} style={staticStyles.skeletonGap} />
         <Skeleton width="60%" height={12} />
       </Section>
 
       <Section title="Feedback States">
-        <View style={styles.stateDemo}>
+        <View style={staticStyles.stateDemo}>
           <LoadingState message="Loading state" />
         </View>
         <ErrorState message="Example error message." onRetry={() => undefined} />
@@ -277,7 +279,7 @@ export default function PlaygroundScreen() {
       </Section>
 
       <Section title="Confirm Modal">
-        <Text style={styles.note}>{confirmResult}</Text>
+        <Text style={[staticStyles.note, { color: colors.muted }]}>{confirmResult}</Text>
         <Button label="Open Confirm Modal" onPress={() => setIsConfirmOpen(true)} variant="secondary" />
       </Section>
 
@@ -286,7 +288,7 @@ export default function PlaygroundScreen() {
       </Section>
 
       <Section title="Async Submit Lifecycle">
-        <Text style={styles.note}>
+        <Text style={[staticStyles.note, { color: colors.muted }]}>
           Include the word &ldquo;error&rdquo; in the text input above to simulate failure.
         </Text>
         {submitState === 'loading' ? <LoadingState message="Submitting…" /> : null}
@@ -296,7 +298,7 @@ export default function PlaygroundScreen() {
             onRetry={() => void handleAsyncSubmit()}
           />
         ) : null}
-        {submitState === 'success' ? <Text style={styles.success}>Submit succeeded.</Text> : null}
+        {submitState === 'success' ? <Text style={[staticStyles.success, { color: colors.success }]}>Submit succeeded.</Text> : null}
         <Button
           disabled={submitState === 'loading'}
           label="Run Async Submit"
@@ -307,7 +309,7 @@ export default function PlaygroundScreen() {
       </Section>
 
       <Section title="Keyboard Form Demo">
-        <Text style={styles.note}>Dedicated route — focus lower fields to validate keyboard pushing inputs up.</Text>
+        <Text style={[staticStyles.note, { color: colors.muted }]}>Dedicated route — focus lower fields to validate keyboard pushing inputs up.</Text>
         <Button
           label="Open Form Demo"
           onPress={() => router.push('/(protected)/(tabs)/playground-form')}
@@ -337,7 +339,7 @@ export default function PlaygroundScreen() {
         onClose={() => setIsSheetOpen(false)}
         title="Sheet Baseline"
         footer={<Button label="Close" onPress={() => setIsSheetOpen(false)} variant="secondary" />}>
-        <Text style={styles.cardBody}>
+        <Text style={[staticStyles.cardBody, { color: colors.foregroundSecondary }]}>
           Slides up from off-screen with a spring. Swipe the handle down to dismiss.
           Backdrop tap also dismisses.
         </Text>
@@ -347,25 +349,23 @@ export default function PlaygroundScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   note: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     lineHeight: tokens.typography.sizes.sm * tokens.typography.lineHeights.relaxed,
   },
   success: {
-    color: tokens.colors.success,
+    fontFamily: tokens.typography.fonts.semibold,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.semibold,
     textAlign: 'center',
   },
   cardTitle: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.semibold,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.semibold,
   },
   cardBody: {
-    color: tokens.colors.foregroundSecondary,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     lineHeight: tokens.typography.sizes.sm * tokens.typography.lineHeights.relaxed,
   },

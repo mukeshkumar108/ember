@@ -8,6 +8,7 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type SkeletonShape = 'rect' | 'circle' | 'text';
 
@@ -30,6 +31,7 @@ export function Skeleton({
   borderRadius,
   style,
 }: SkeletonProps) {
+  const { colors } = useTheme();
   const opacity = useSharedValue(1);
 
   React.useEffect(() => {
@@ -51,8 +53,8 @@ export function Skeleton({
     return (
       <Animated.View
         style={[
-          styles.base,
-          { width: diameter, height: diameter, borderRadius: diameter / 2 },
+          staticStyles.base,
+          { width: diameter, height: diameter, borderRadius: diameter / 2, backgroundColor: colors.backgroundSecondary },
           animatedStyle,
           style,
         ]}
@@ -64,8 +66,9 @@ export function Skeleton({
     return (
       <Animated.View
         style={[
-          styles.base,
-          styles.textShape,
+          staticStyles.base,
+          staticStyles.textShape,
+          { backgroundColor: colors.backgroundSecondary },
           width ? { width } : null,
           animatedStyle,
           style,
@@ -77,11 +80,12 @@ export function Skeleton({
   return (
     <Animated.View
       style={[
-        styles.base,
+        staticStyles.base,
         {
           width: width ?? '100%',
           height,
           borderRadius: borderRadius ?? tokens.radius.md,
+          backgroundColor: colors.backgroundSecondary,
         },
         animatedStyle,
         style,
@@ -95,9 +99,9 @@ export function Skeleton({
  */
 export function SkeletonListItem({ style }: { style?: StyleProp<ViewStyle> }) {
   return (
-    <View style={[styles.listItem, style]}>
+    <View style={[staticStyles.listItem, style]}>
       <Skeleton shape="circle" diameter={40} />
-      <View style={styles.listItemText}>
+      <View style={staticStyles.listItemText}>
         <Skeleton shape="text" width="60%" height={14} />
         <Skeleton shape="text" width="40%" height={12} />
       </View>
@@ -105,10 +109,8 @@ export function SkeletonListItem({ style }: { style?: StyleProp<ViewStyle> }) {
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    backgroundColor: tokens.colors.backgroundSecondary,
-  },
+const staticStyles = StyleSheet.create({
+  base: {},
   textShape: {
     height: 14,
     borderRadius: tokens.radius.sm,

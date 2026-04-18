@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -55,13 +56,15 @@ const FONT_SIZE_MAP: Record<AvatarSize, number> = {
 };
 
 export function Avatar({ name = '', imageUri, size = 'md', style }: AvatarProps) {
+  const { colors } = useTheme();
   const diameter = SIZE_MAP[size];
   const fontSize = FONT_SIZE_MAP[size];
-  const bgColor = name ? getAvatarColor(name) : tokens.colors.backgroundSecondary;
+  // Named avatars get a deterministic color; unnamed fallback uses the themed surface
+  const bgColor = name ? getAvatarColor(name) : colors.backgroundSecondary;
   const initials = name ? getInitials(name) : '?';
 
   const containerStyle = [
-    styles.base,
+    staticStyles.base,
     { width: diameter, height: diameter, borderRadius: diameter / 2, backgroundColor: bgColor },
     style,
   ];
@@ -71,7 +74,7 @@ export function Avatar({ name = '', imageUri, size = 'md', style }: AvatarProps)
       <View style={containerStyle}>
         <Image
           source={{ uri: imageUri }}
-          style={[styles.image, { borderRadius: diameter / 2 }]}
+          style={[staticStyles.image, { borderRadius: diameter / 2 }]}
           resizeMode="cover"
         />
       </View>
@@ -80,12 +83,14 @@ export function Avatar({ name = '', imageUri, size = 'md', style }: AvatarProps)
 
   return (
     <View style={containerStyle}>
-      <Text style={[styles.initials, { fontSize }]}>{initials}</Text>
+      <Text style={[staticStyles.initials, { fontSize, fontFamily: tokens.typography.fonts.semibold }]}>
+        {initials}
+      </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   base: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -96,7 +101,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   initials: {
-    color: tokens.colors.background,
-    fontWeight: tokens.typography.weights.semibold,
+    color: '#FFFFFF', // white text always — avatar background colors are all vibrant
   },
 });

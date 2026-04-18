@@ -11,6 +11,7 @@ import { User } from '@/api/types';
 import { useDeviceRegistration, useMe, useUpdateMe } from '@/hooks';
 import { profileSchema, type ProfileFormData } from '@/lib/schemas';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 const LOCALE_OPTIONS = [
   { label: 'System Default', value: '' },
@@ -54,6 +55,7 @@ function toFormDefaults(user: User): ProfileFormData {
 }
 
 export function SettingsScreen() {
+  const { colors } = useTheme();
   const router = useRouter();
   const { signOut } = useAuth();
   const { showToast } = useToast();
@@ -139,12 +141,12 @@ export function SettingsScreen() {
     <FormScreen
       title="Settings"
       subtitle="Your account and preferences."
-      footer={<Text style={styles.footer}>Ember v1.0.0</Text>}>
+      footer={<Text style={[staticStyles.footer, { color: colors.muted }]}>Ember v1.0.0</Text>}>
       <Section title="Account">
-        <Card variant="outlined" style={styles.listCard}>
+        <Card variant="outlined" style={staticStyles.listCard}>
           <ListItem
             title="Email"
-            trailing={<Text style={styles.value}>{user.email ?? 'Unknown'}</Text>}
+            trailing={<Text style={[staticStyles.value, { color: colors.foregroundSecondary }]}>{user.email ?? 'Unknown'}</Text>}
           />
           <Divider />
           <ListItem
@@ -175,8 +177,8 @@ export function SettingsScreen() {
               />
             )}
           />
-          <View style={styles.nameRow}>
-            <View style={styles.nameField}>
+          <View style={staticStyles.nameRow}>
+            <View style={staticStyles.nameField}>
               <Controller
                 control={control}
                 name="firstName"
@@ -191,7 +193,7 @@ export function SettingsScreen() {
                 )}
               />
             </View>
-            <View style={styles.nameField}>
+            <View style={staticStyles.nameField}>
               <Controller
                 control={control}
                 name="lastName"
@@ -256,7 +258,7 @@ export function SettingsScreen() {
       </Section>
 
       <Section title="Session">
-        <Card variant="outlined" style={styles.listCard}>
+        <Card variant="outlined" style={staticStyles.listCard}>
           <ListItem title="Log Out" onPress={() => void handleSignOut()} />
           <Divider />
           <ListItem title="Delete Account" destructive onPress={handleDeleteAccount} />
@@ -266,16 +268,16 @@ export function SettingsScreen() {
       {__DEV__ ? (
         <Section title="Developer">
           <Card>
-            <Text style={styles.meta}>API: {API_URL}</Text>
-            <Text style={styles.meta}>User ID: {user.id}</Text>
-            <Text style={styles.meta}>Device registration: {deviceRegistrationStatus.state}</Text>
-            <Text style={styles.meta}>
+            <Text style={[staticStyles.meta, { color: colors.muted }]}>API: {API_URL}</Text>
+            <Text style={[staticStyles.meta, { color: colors.muted }]}>User ID: {user.id}</Text>
+            <Text style={[staticStyles.meta, { color: colors.muted }]}>Device registration: {deviceRegistrationStatus.state}</Text>
+            <Text style={[staticStyles.meta, { color: colors.muted }]}>
               Supported: {deviceRegistrationStatus.supported ? 'yes' : 'no'} · Token present:{' '}
               {deviceRegistrationStatus.hasPushToken ? 'yes' : 'no'}
             </Text>
-            <Text style={styles.meta}>Status: {deviceRegistrationStatus.message}</Text>
+            <Text style={[staticStyles.meta, { color: colors.muted }]}>Status: {deviceRegistrationStatus.message}</Text>
             {errors.root ? (
-              <Text style={styles.meta}>Form error: {errors.root.message}</Text>
+              <Text style={[staticStyles.meta, { color: colors.muted }]}>Form error: {errors.root.message}</Text>
             ) : null}
             <Button label="Refetch /me" onPress={() => void refetch()} variant="secondary" size="sm" />
             <Button
@@ -297,7 +299,7 @@ export function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   nameRow: {
     flexDirection: 'row',
     gap: tokens.spacing.md,
@@ -306,7 +308,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   value: {
-    color: tokens.colors.foregroundSecondary,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
   },
   listCard: {
@@ -315,11 +317,11 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   meta: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
   },
   footer: {
-    color: tokens.colors.muted,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
   },

@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { tokens } from "@/styles/tokens";
+import { ThemeProvider, useTheme } from "./theme-provider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,23 +33,32 @@ const tokenCache = {
   },
 };
 
+function BootLoader() {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.bootLoader, { backgroundColor: colors.background }]}>
+      <ActivityIndicator size="large" color={colors.primary} />
+    </View>
+  );
+}
+
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider
-      publishableKey={CLERK_PUBLISHABLE_KEY}
-      tokenCache={tokenCache}
-    >
-      <ClerkLoading>
-        <View style={styles.bootLoader}>
-          <ActivityIndicator size="large" />
-        </View>
-      </ClerkLoading>
-      <ClerkLoaded>
-        <QueryClientProvider client={queryClient}>
-          <ToastProvider>{children}</ToastProvider>
-        </QueryClientProvider>
-      </ClerkLoaded>
-    </ClerkProvider>
+    <ThemeProvider>
+      <ClerkProvider
+        publishableKey={CLERK_PUBLISHABLE_KEY}
+        tokenCache={tokenCache}
+      >
+        <ClerkLoading>
+          <BootLoader />
+        </ClerkLoading>
+        <ClerkLoaded>
+          <QueryClientProvider client={queryClient}>
+            <ToastProvider>{children}</ToastProvider>
+          </QueryClientProvider>
+        </ClerkLoaded>
+      </ClerkProvider>
+    </ThemeProvider>
   );
 }
 
@@ -58,6 +67,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: tokens.colors.background,
   },
 });

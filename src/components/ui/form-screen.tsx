@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type FormScreenProps = {
   title: string;
@@ -39,28 +40,34 @@ export function FormScreen({
   contentContainerStyle,
   keyboardShouldPersistTaps = 'handled',
 }: FormScreenProps) {
+  const { colors } = useTheme();
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[staticStyles.safeArea, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={keyboardVerticalOffset}
-        style={styles.keyboardRoot}>
+        style={staticStyles.keyboardRoot}>
         <ScrollView
           automaticallyAdjustKeyboardInsets
-          contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
+          contentContainerStyle={[staticStyles.scrollContent, contentContainerStyle]}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps={keyboardShouldPersistTaps}
           showsVerticalScrollIndicator={false}>
-          <View style={styles.main}>
-            <View style={styles.header}>
-              <Text style={styles.title}>{title}</Text>
-              {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          <View style={staticStyles.main}>
+            <View style={staticStyles.header}>
+              <Text style={[staticStyles.title, { color: colors.foreground }]}>{title}</Text>
+              {subtitle ? (
+                <Text style={[staticStyles.subtitle, { color: colors.foregroundSecondary }]}>
+                  {subtitle}
+                </Text>
+              ) : null}
             </View>
-            <View style={styles.form}>{children}</View>
+            <View style={staticStyles.form}>{children}</View>
           </View>
 
           {footer ? (
-            <SafeAreaView edges={['bottom']} style={styles.footer}>
+            <SafeAreaView edges={['bottom']} style={staticStyles.footer}>
               {footer}
             </SafeAreaView>
           ) : null}
@@ -70,10 +77,9 @@ export function FormScreen({
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: tokens.colors.background,
   },
   keyboardRoot: {
     flex: 1,
@@ -93,13 +99,12 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
   },
   title: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.bold,
     fontSize: tokens.typography.sizes['2xl'],
-    fontWeight: tokens.typography.weights.bold,
     letterSpacing: 0.35,
   },
   subtitle: {
-    color: tokens.colors.foregroundSecondary,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.base,
     lineHeight: tokens.typography.sizes.base * tokens.typography.lineHeights.relaxed,
   },

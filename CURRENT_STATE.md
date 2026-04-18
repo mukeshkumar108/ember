@@ -1,8 +1,8 @@
 # Project Status Report
 
 **Project**: Ember  
-**Checkpoint**: Extension Baseline Consolidation (2026-04-17)  
-**Maturity**: 1.6.0 foundation
+**Checkpoint**: Visual System Completion (2026-04-17)  
+**Maturity**: 1.7.0 foundation
 
 ## What Is Solid
 - Public/protected routing and Clerk auth are wired.
@@ -18,6 +18,9 @@
 - **Feature extension baseline is implemented**: lightweight feature registry for optional module gating.
 - **Offline-awareness baseline is implemented**: network status hook plus global offline banner.
 - **Notification listener baseline is implemented**: foreground and response listeners with explicit extension handlers.
+- **Form foundation is implemented**: `react-hook-form` + `zod` with Controller bindings for all primitives; `src/lib/schemas.ts` shared schemas; auth and settings screens refactored.
+- **Dark mode is fully implemented**: `ThemeProvider` + `useTheme()` pattern applied to all components, overlays, feedback states, tab bar, and banners; system color scheme respected automatically.
+- **Inter font is integrated**: `@expo-google-fonts/inter` loaded at startup via `useFonts()` + SplashScreen; all components use `tokens.typography.fonts.*` for consistent weight/style.
 
 ## API Boundary Strategy (Current)
 - Backend payloads are requested as `unknown`.
@@ -50,4 +53,4 @@
 - Offline status cannot guarantee backend reachability in every captive/network-edge case; it is a practical baseline signal.
 
 ## Immediate Next Task
-Add one thin product-level module example (behind registry key) to demonstrate end-to-end feature enable/disable workflow without adding domain logic.
+Add one thin product-level module example (behind registry key) to demonstrate end-to-end feature enable/disable workflow without adding domain logic. Alternatively: update playground to exercise dark mode and font rendering across all primitives.

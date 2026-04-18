@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Button } from '@/components/ui';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 
 type ErrorStateProps = {
   message: string;
@@ -22,14 +23,15 @@ export function ErrorState({
   fullScreen = false,
   style,
 }: ErrorStateProps) {
+  const { colors } = useTheme();
   return (
-    <View style={[styles.container, fullScreen ? styles.fullScreen : null, style]}>
-      <View style={styles.iconContainer}>
-        <Text style={styles.icon}>!</Text>
+    <View style={[staticStyles.container, fullScreen ? staticStyles.fullScreen : null, style]}>
+      <View style={[staticStyles.iconContainer, { backgroundColor: `${colors.danger}18` }]}>
+        <Text style={[staticStyles.icon, { color: colors.danger }]}>!</Text>
       </View>
-      <View style={styles.text}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.message}>{message}</Text>
+      <View style={staticStyles.text}>
+        <Text style={[staticStyles.title, { color: colors.foreground }]}>{title}</Text>
+        <Text style={[staticStyles.message, { color: colors.foregroundSecondary }]}>{message}</Text>
       </View>
       {onRetry ? <Button label="Try Again" onPress={onRetry} variant="secondary" size="sm" /> : null}
       {secondaryActionLabel && onSecondaryAction ? (
@@ -39,7 +41,7 @@ export function ErrorState({
   );
 }
 
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   container: {
     alignItems: 'center',
     gap: tokens.spacing.md,
@@ -49,27 +51,24 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: tokens.radius.full,
-    backgroundColor: `${tokens.colors.danger}18`,
     alignItems: 'center',
     justifyContent: 'center',
   },
   icon: {
-    color: tokens.colors.danger,
+    fontFamily: tokens.typography.fonts.bold,
     fontSize: tokens.typography.sizes.xl,
-    fontWeight: tokens.typography.weights.bold,
   },
   text: {
     alignItems: 'center',
     gap: tokens.spacing.xs,
   },
   title: {
-    color: tokens.colors.foreground,
+    fontFamily: tokens.typography.fonts.semibold,
     fontSize: tokens.typography.sizes.base,
-    fontWeight: tokens.typography.weights.semibold,
     textAlign: 'center',
   },
   message: {
-    color: tokens.colors.foregroundSecondary,
+    fontFamily: tokens.typography.fonts.regular,
     fontSize: tokens.typography.sizes.sm,
     textAlign: 'center',
     lineHeight: tokens.typography.sizes.sm * tokens.typography.lineHeights.relaxed,

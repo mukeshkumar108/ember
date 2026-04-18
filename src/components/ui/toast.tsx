@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokens } from '@/styles/tokens';
+import { useTheme } from '@/providers/theme-provider';
 import { useReduceMotion } from '@/hooks';
 
 type ToastType = 'info' | 'success' | 'error' | 'warning';
@@ -40,6 +41,7 @@ export function useToast() {
 }
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
+  const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const reduceMotion = useReduceMotion();
   const [toast, setToast] = React.useState<ToastItem | null>(null);
@@ -113,22 +115,31 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     opacity: opacity.value,
   }));
 
+  // Toast backgrounds are always high-contrast regardless of theme.
+  // info uses a near-black in light mode, elevated gray in dark mode.
+  const toastTypeStyle: Record<ToastType, StyleProp<ViewStyle>> = {
+    info: { backgroundColor: isDark ? '#48484A' : '#1C1C1E' },
+    success: { backgroundColor: '#1A7A32' }, // dark green — WCAG AA with white text in both modes
+    error: { backgroundColor: '#D70015' },   // darkened danger — WCAG AA with white text
+    warning: { backgroundColor: '#7A4A00' }, // dark amber — WCAG AA with white text in both modes
+  };
+
   return (
     <ToastContext.Provider value={{ showToast, hideToast }}>
       {children}
       {isVisible && toast ? (
-        <View pointerEvents="box-none" style={styles.viewport}>
+        <View pointerEvents="box-none" style={staticStyles.viewport}>
           <Animated.View
             accessibilityLiveRegion="polite"
             accessibilityRole="alert"
             style={[
-              styles.toast,
+              staticStyles.toast,
               toastTypeStyle[toast.type],
               tokens.shadow.lg,
               { marginBottom: insets.bottom + tokens.spacing.lg },
               animatedStyle,
             ]}>
-            <Text style={[styles.message, toastTextStyle[toast.type]]} numberOfLines={2}>{toast.message}</Text>
+            <Text style={staticStyles.message} numberOfLines={2}>{toast.message}</Text>
             {toast.actionLabel && toast.onAction ? (
               <Pressable
                 accessibilityRole="button"
@@ -136,11 +147,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   toast.onAction?.();
                   hideToast();
                 }}>
-                <Text style={[styles.action, toastTextStyle[toast.type]]}>{toast.actionLabel}</Text>
+                <Text style={staticStyles.action}>{toast.actionLabel}</Text>
               </Pressable>
             ) : (
               <Pressable accessibilityRole="button" onPress={hideToast}>
-                <Text style={[styles.action, toastTextStyle[toast.type]]}>Dismiss</Text>
+                <Text style={staticStyles.action}>Dismiss</Text>
               </Pressable>
             )}
           </Animated.View>
@@ -150,22 +161,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-const toastTypeStyle: Record<ToastType, StyleProp<ViewStyle>> = {
-  info: { backgroundColor: '#1C1C1E' }, // near-black for high contrast
-  success: { backgroundColor: '#1A7A32' }, // darkened for WCAG AA with white text
-  error: { backgroundColor: tokens.colors.danger },
-  warning: { backgroundColor: '#7A4A00' }, // darkened for WCAG AA with white text
-};
-
-// success/warning use dark backgrounds now, all four use white text — contrast passes AA
-const toastTextStyle: Record<ToastType, { color: string }> = {
-  info: { color: tokens.colors.background },
-  success: { color: tokens.colors.background },
-  error: { color: tokens.colors.background },
-  warning: { color: tokens.colors.background },
-};
-
-const styles = StyleSheet.create({
+const staticStyles = StyleSheet.create({
   viewport: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
@@ -182,17 +178,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: tokens.spacing.md,
   },
+  // All toast types use white text — backgrounds are all dark/high-contrast
   message: {
     flex: 1,
-    color: tokens.colors.background,
+    color: '#FFFFFF',
+    fontFamily: tokens.typography.fonts.medium,
     fontSize: tokens.typography.sizes.sm,
-    fontWeight: tokens.typography.weights.medium,
     lineHeight: tokens.typography.sizes.sm * tokens.typography.lineHeights.relaxed,
   },
   action: {
-    color: tokens.colors.background,
+    color: '#FFFFFF',
+    fontFamily: tokens.typography.fonts.bold,
     fontSize: tokens.typography.sizes.sm,
-    fontWeight: tokens.typography.weights.bold,
     opacity: 0.9,
   },
 });

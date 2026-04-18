@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented here.
 
+## [Visual System Completion] - 2026-04-17
+
+### Added
+- **`src/styles/colors.ts`** — `lightColors` and `darkColors` palettes with identical key shapes; new `backgroundElevated` token for sheets/modals/elevated cards
+- **`src/providers/theme-provider.tsx`** — `ThemeProvider` (subscribes to `useColorScheme()`, memoized context) and `useTheme()` hook
+- **`@expo-google-fonts/inter`** — Inter font installed: 400, 500, 600, 700 weights
+- **`tokens.typography.fonts`** — `regular`, `medium`, `semibold`, `bold` font family names for Inter
+
+### Changed
+- **All UI primitives** — `Button`, `Input`, `TextArea`, `Select`, `Checkbox`, `Toggle`, `Badge`, `ListItem`, `Sheet`, `ConfirmModal`, `Toast`, `Skeleton`, `Avatar`, `Icon`, `Card`, `Section`, `Divider`, `Screen`, `FormScreen`, `HapticTab` now use `useTheme().colors` for all color values; layout split into `staticStyles` with `StyleSheet.create`
+- **All feedback components** — `LoadingState`, `ErrorState`, `EmptyState`, `NetworkBanner` now use `useTheme().colors` and `tokens.typography.fonts`
+- **`app/(protected)/(tabs)/_layout.tsx`** — tab bar active/inactive/border/background colors come from `useTheme().colors`
+- **`app/_layout.tsx`** — font loading with `useFonts()` + `SplashScreen.preventAutoHideAsync()` / `hideAsync()`; returns `null` until fonts loaded
+- **`src/providers/index.tsx`** — `ThemeProvider` added as outermost wrapper; `BootLoader` uses `useTheme()` for activity indicator and background
+- **`src/hooks/index.ts`** — re-exports `useTheme` for convenience
+- **`tokens.colors`** aliased to `lightColors` for backwards compatibility — components must use `useTheme().colors` instead
+- **DESIGN_SYSTEM.md** — updated color table with light/dark values; added dark mode pattern section; updated component template; updated "What's Not Here" section
+- **AGENTS.md** — added Theme and Font Rules section with hard rules for all contributors
+
+### Notes
+- `AppErrorBoundary` is a class component; it uses `tokens.colors` (light palette). This is an acceptable known limitation — error boundary fallback with light colors is fine in a rare crash scenario.
+- Toast info type uses `#1C1C1E` in light mode, `#48484A` in dark mode so it remains visible against the dark background.
+- `fontWeight` must NOT be used alongside `tokens.typography.fonts.*` — the Inter font name encodes the weight.
+
 ## [Extension Baseline Consolidation] - 2026-04-17
 
 ### Added

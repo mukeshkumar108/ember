@@ -29,14 +29,23 @@ It is not a product and should stay domain-agnostic.
 3. Do not build a plugin framework; keep feature registry static and explicit.
 
 ## UI and Interaction Rules
-1. Use tokens from `src/styles/tokens.ts`; no ad-hoc colors or spacing.
-2. Use existing primitives before creating new ones:
+1. Use tokens from `src/styles/tokens.ts` for spacing, radius, animation; no ad-hoc values.
+2. **Colors must come from `useTheme().colors`** — never read `tokens.colors.*` in components. `tokens.colors` is a light-palette alias for backwards compatibility only.
+3. Use existing primitives before creating new ones:
    - `Button`, `Input`, `TextArea`, `Select`, `Checkbox`, `Toggle`
    - `Screen`, `FormScreen`, `Section`, `Card`
    - `Sheet`, `ConfirmModal`, `Toast`
-3. Use shared `LoadingState` and `ErrorState` for async UI.
-4. Any screen with multiple inputs should use `FormScreen`.
-5. Playground must be truthful: controls are interactive unless clearly labeled visual-only.
+4. Use shared `LoadingState` and `ErrorState` for async UI.
+5. Any screen with multiple inputs should use `FormScreen`.
+6. Playground must be truthful: controls are interactive unless clearly labeled visual-only.
+
+## Theme and Font Rules
+1. Every component that renders color must call `const { colors } = useTheme()` at the top and use `colors.*` for all color values.
+2. Split styles into `staticStyles` (layout via `StyleSheet.create`) and inline color objects — never put color values inside `StyleSheet.create`.
+3. Use `colors.backgroundElevated` for elevated surfaces (Sheet, ConfirmModal, elevated Card) — not `colors.background`.
+4. Use `tokens.typography.fonts.*` for all `fontFamily` values. Do NOT combine with `fontWeight` — the Inter font name encodes the weight.
+5. When adding a new color token, add it to **both** `lightColors` and `darkColors` in `src/styles/colors.ts`.
+6. `isDark` from `useTheme()` is for exceptional cases only (e.g., WCAG contrast logic that can't be expressed as a token pair). Avoid `isDark` for layout or spacing decisions.
 
 ## Error Handling Rules
 1. Async errors: surface with shared feedback components.
