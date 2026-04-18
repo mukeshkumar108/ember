@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { registerDeviceRequestSchema, registerDeviceResponseSchema } from '@/api/schemas';
 import { parseApiContract } from '@/api/validation';
+import { isFeatureEnabled } from '@/features';
 import { useApi } from './use-api';
 
 type RegistrationState =
@@ -213,11 +214,23 @@ function resolvePlatform(): 'ios' | 'android' | 'web' | null {
 
 export function useDeviceRegistration(options?: { autoRegister?: boolean }) {
   const autoRegister = options?.autoRegister ?? true;
+  const notificationsFeatureEnabled = isFeatureEnabled('notifications');
   const { request } = useApi();
   const { isSignedIn, isLoaded, userId } = useAuth();
   const status = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   const registerDevice = useCallback(async () => {
+    if (!notificationsFeatureEnabled) {
+      setSnapshot({
+        state: 'skipped',
+        attempted: false,
+        supported: false,
+        hasPushToken: false,
+        message: 'Notifications feature is disabled.',
+      });
+      return;
+    }
+
     if (!isLoaded || !isSignedIn || !userId) {
       setSnapshot({
         state: 'idle',
@@ -336,7 +349,7 @@ export function useDeviceRegistration(options?: { autoRegister?: boolean }) {
     } finally {
       inFlightRegistration = null;
     }
-  }, [isLoaded, isSignedIn, request, userId]);
+  }, [isLoaded, isSignedIn, notificationsFeatureEnabled, request, userId]);
 
   useEffect(() => {
     if (!isLoaded || isSignedIn) {

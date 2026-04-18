@@ -1,6 +1,7 @@
 import { Redirect, Stack, useSegments } from 'expo-router';
 import { useAuth } from '@clerk/clerk-expo';
 import { useDeviceRegistration } from '@/hooks/use-device-registration';
+import { useNotificationListeners } from '@/hooks/use-notification-listeners';
 import { useMe } from '@/hooks/use-me';
 import { ApiError } from '@/api/client';
 import { ErrorState, LoadingState } from '@/components/feedback';
@@ -10,6 +11,7 @@ export default function ProtectedLayout() {
   const { data: user, error, isError, isLoading: isUserLoading, refetch } = useMe();
   const segments = useSegments();
   useDeviceRegistration();
+  useNotificationListeners();
 
   if (!isLoaded || (isSignedIn && isUserLoading)) {
     return <LoadingState fullScreen message="Loading account..." />;

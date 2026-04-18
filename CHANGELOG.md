@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## [Extension Baseline Consolidation] - 2026-04-17
+
+### Added
+- Feature registry baseline (`src/features/registry.ts`) and notification handler extension module (`src/features/notifications.ts`).
+- Offline-awareness baseline hook (`useNetworkStatus`) and global `NetworkBanner`.
+- Notification listener baseline hook (`useNotificationListeners`) for foreground and response events.
+- Focused architecture tests for:
+  - feature registry defaults/env overrides
+  - network status mapping logic
+  - notification listener readiness logic
+
+### Changed
+- Protected lifecycle now wires notification listeners alongside device registration.
+- Device registration now respects feature registry enablement.
+- Docs updated with feature extension/offline-awareness/notification baseline guidance.
+
 ## [Contract Test Baseline] - 2026-04-17
 
 ### Added

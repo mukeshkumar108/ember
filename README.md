@@ -19,6 +19,9 @@ It is not a product. It is a practical app shell for future mobile experiments.
 - Overlay primitives: sheet, confirm modal, toast.
 - App-level React error boundary fallback.
 - Device registration baseline via `POST /api/v1/devices` (with graceful environment fallbacks).
+- Lightweight feature registry for optional module gating.
+- Offline-awareness baseline with network status hook + offline banner.
+- Notification listener baseline (foreground + tap-response extension points).
 
 ## Quick Start
 
@@ -70,6 +73,7 @@ app/                    Routes and layout wiring only
 
 src/
   api/                  request client + API zod schemas + contract parsing helpers
+  features/             feature registry + extension module hooks
   hooks/                TanStack Query hooks + auth hooks
   components/
     ui/                 Reusable UI primitives
@@ -115,6 +119,33 @@ This flow is non-blocking: failure or unsupported environment does not break app
 - Missing EAS project ID prevents Expo push token retrieval.
 - Web registration is currently skipped in Ember baseline.
 
+## Feature Extension Baseline
+
+Single source of truth:
+- `src/features/registry.ts`
+
+Current baseline features:
+- `notifications` (default enabled)
+- `offlineAwareness` (default enabled)
+- reserved disabled slots: `analytics`, `uploads`, `payments`, `subscriptions`, `multiStepOnboarding`
+
+Use `isFeatureEnabled('<featureKey>')` in hooks/components for safe conditional behavior.
+
+## Offline Awareness Baseline
+
+- `useNetworkStatus` provides reusable online/offline state.
+- `NetworkBanner` is mounted at app layout level and shows a minimal offline warning.
+- Ember is **offline-aware**, not offline-first: no full sync/conflict strategy is implemented.
+
+## Notification Listener Baseline
+
+- `useNotificationListeners` is wired in protected lifecycle.
+- Foreground and response-tap listeners are attached when supported/authenticated.
+- Extension point lives in `src/features/notifications.ts`:
+  - `setNotificationEventHandlers(...)`
+  - `getNotificationEventHandlers()`
+- No product routing, inbox, or notification center assumptions are made by default.
+
 ## Error Handling
 
 - Route/bootstrap async failures: use shared `LoadingState` / `ErrorState`.
@@ -138,6 +169,9 @@ Stack:
 Current focus:
 - API contract parsing tests for `/api/v1/me` and `/api/v1/devices`
 - critical hook boundary behavior tests (`useMe`, `useUpdateMe`, `useCompleteOnboarding`)
+- feature registry and extension baseline helpers
+- offline-awareness mapping logic
+- notification listener readiness logic
 
 Intentionally not a goal:
 - large visual snapshot suites

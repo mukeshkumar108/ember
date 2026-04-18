@@ -1,8 +1,8 @@
 # Project Status Report
 
 **Project**: Ember  
-**Checkpoint**: Contract Test Baseline (2026-04-17)  
-**Maturity**: 1.5.0 foundation
+**Checkpoint**: Extension Baseline Consolidation (2026-04-17)  
+**Maturity**: 1.6.0 foundation
 
 ## What Is Solid
 - Public/protected routing and Clerk auth are wired.
@@ -15,6 +15,9 @@
 - **App-level crash handling is now present** via `AppErrorBoundary` in `app/_layout.tsx`.
 - **Device registration baseline is implemented**: authenticated lifecycle attempts `POST /api/v1/devices` with validated response parsing and quiet environment fallbacks.
 - **Minimal high-value test layer is present**: Vitest contract tests + critical hook boundary tests.
+- **Feature extension baseline is implemented**: lightweight feature registry for optional module gating.
+- **Offline-awareness baseline is implemented**: network status hook plus global offline banner.
+- **Notification listener baseline is implemented**: foreground and response listeners with explicit extension handlers.
 
 ## API Boundary Strategy (Current)
 - Backend payloads are requested as `unknown`.
@@ -30,6 +33,7 @@
 - Full searchable timezone dataset/picker.
 - Advanced overlay orchestration (stacking/queue manager).
 - Push delivery workflows and notification-center UX.
+- Offline-first sync queues, local mutation replay, and conflict resolution.
 - Product-specific onboarding/account behaviors.
 
 ## Active Assumptions
@@ -43,6 +47,7 @@
 - Error boundary reset retries render path but does not auto-recover external side effects.
 - Expo Go/simulator environments may not provide a usable push token; Ember now reports this as skipped registration.
 - Device registration behavior is intentionally not deeply unit-tested due environment complexity; covered primarily through contract tests and runtime status visibility.
+- Offline status cannot guarantee backend reachability in every captive/network-edge case; it is a practical baseline signal.
 
 ## Immediate Next Task
-Add one focused hook test around `useDeviceRegistration` skip/fail state transitions using lightweight mocks, only if it remains stable and low-maintenance.
+Add one thin product-level module example (behind registry key) to demonstrate end-to-end feature enable/disable workflow without adding domain logic.

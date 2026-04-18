@@ -129,3 +129,26 @@ Expected coverage:
 1. Add a fixture in `src/test/fixtures/api.ts` (or local inline fixture if tiny).
 2. Parse with `parseApiContract(schema, payload, context)`.
 3. Assert success for valid payloads and `ApiContractError` for drifted payloads.
+
+## 11) Feature Registry Strategy
+
+- Source of truth: `src/features/registry.ts`.
+- Add new optional module as a registry key with:
+  - `enabled` default
+  - short `description`
+- Gate optional behavior with `isFeatureEnabled(key)` in hooks/components.
+- Keep registry explicit and static; do not build dynamic plugin loaders.
+
+## 12) Offline-Awareness Strategy
+
+- Use `useNetworkStatus` for a single baseline network signal.
+- Keep UX minimal (`NetworkBanner`) and non-blocking.
+- Do not implement offline-first sync queues or conflict resolution in starter baseline.
+
+## 13) Notification Listener Strategy
+
+- Listener owner: `useNotificationListeners` (protected authenticated lifecycle).
+- Default behavior: no product routing, no inbox assumptions.
+- Extension point:
+  - `setNotificationEventHandlers({ onForegroundNotification, onNotificationResponse })`
+  - define product behavior in the consuming app/module layer.

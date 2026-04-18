@@ -1,5 +1,5 @@
 import { Slot } from 'expo-router';
-import { AppErrorBoundary } from '@/components/feedback';
+import { AppErrorBoundary, NetworkBanner } from '@/components/feedback';
 import { AppProviders } from '@/providers';
 import 'react-native-reanimated';
 
@@ -17,6 +17,7 @@ export default function RootLayout() {
   return (
     <AppProviders>
       <AppErrorBoundary>
+        <NetworkBanner />
         <Slot />
       </AppErrorBoundary>
     </AppProviders>

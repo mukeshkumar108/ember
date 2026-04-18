@@ -23,6 +23,11 @@ It is not a product and should stay domain-agnostic.
 5. If parsing fails, let it fail loudly (`ApiContractError`) so backend drift is visible immediately.
 6. Device registration (`POST /api/v1/devices`) must use the same `request<unknown> -> parseApiContract(...)` boundary pattern.
 
+## Feature Registry Rules
+1. Feature toggles/modules are defined in `src/features/registry.ts` as the single source of truth.
+2. Prefer adding optional capability behind a feature key before wiring product behavior.
+3. Do not build a plugin framework; keep feature registry static and explicit.
+
 ## UI and Interaction Rules
 1. Use tokens from `src/styles/tokens.ts`; no ad-hoc colors or spacing.
 2. Use existing primitives before creating new ones:
@@ -44,6 +49,12 @@ It is not a product and should stay domain-agnostic.
 3. Keep registration idempotent and quiet; avoid repeated duplicate posts.
 4. Keep settings/dev visibility minimal (status + support/token presence), not a debug console.
 
+## Offline and Notification Baseline Rules
+1. Ember is offline-aware, not offline-first. Avoid adding sync/conflict systems in starter baseline.
+2. Use `useNetworkStatus` for network awareness and keep banner messaging minimal.
+3. Use notification listener extension handlers (`src/features/notifications.ts`) for future product behavior.
+4. Do not add product-specific notification routing in starter baseline.
+
 ## Out of Scope
 - Product-specific features
 - Analytics/marketing systems
@@ -62,7 +73,8 @@ It is not a product and should stay domain-agnostic.
 1. Prioritize contract/boundary tests over broad UI snapshots.
 2. Add tests where backend drift would silently break starter behavior.
 3. Keep hook tests focused on unwrapping, error propagation, and cache invalidation behavior.
-4. Avoid brittle environment-heavy mocks unless they provide clear value.
+4. For architecture baselines, add tests for small pure helpers (feature flags, readiness/mapping helpers) instead of brittle runtime harnesses.
+5. Avoid brittle environment-heavy mocks unless they provide clear value.
 
 ## Required Handover Format
 1. Files added/removed/renamed.
