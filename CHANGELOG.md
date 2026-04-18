@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## [Final Baseline Completion] - 2026-04-18
+
+### Added
+- `src/components/ui/image.tsx` reusable image primitive (remote source, default placeholder, error fallback, optional blurhash override).
+- Social auth stub hook: `src/hooks/auth/use-social-auth-stubs.ts`.
+- Deep-link baseline config/hook:
+  - `src/config/deep-linking.ts`
+  - `src/hooks/use-deep-linking.ts`
+- Focused deep-link helper test: `src/config/deep-linking.test.ts`.
+
+### Changed
+- Sign-in/sign-up screens now show Apple + Google social auth stub buttons with explicit non-wired messaging.
+- Root layout now initializes deep-link listeners via `useDeepLinking()`.
+- UI exports now include `Image` primitive.
+- Docs updated for image usage, social auth stub expectations, and deep-link extension strategy.
+
 ## [Visual System Completion] - 2026-04-17
 
 ### Added

@@ -9,6 +9,7 @@ import {
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 import { AppErrorBoundary, NetworkBanner } from '@/components/feedback';
+import { useDeepLinking } from '@/hooks';
 import { AppProviders } from '@/providers';
 import 'react-native-reanimated';
 
@@ -26,6 +27,8 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  useDeepLinking();
+
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,

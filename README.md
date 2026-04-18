@@ -17,11 +17,14 @@ It is not a product. It is a practical app shell for future mobile experiments.
 - Reusable UI primitives and feedback components.
 - Form primitives and keyboard-safe form screen pattern.
 - Overlay primitives: sheet, confirm modal, toast.
+- Image primitive based on `expo-image` with placeholder and fallback handling.
 - App-level React error boundary fallback.
 - Device registration baseline via `POST /api/v1/devices` (with graceful environment fallbacks).
 - Lightweight feature registry for optional module gating.
 - Offline-awareness baseline with network status hook + offline banner.
 - Notification listener baseline (foreground + tap-response extension points).
+- Social auth UI stubs for Apple + Google (intentionally not fully wired).
+- Deep-linking baseline with scheme helpers and listener hooks.
 
 ## Quick Start
 
@@ -73,6 +76,7 @@ app/                    Routes and layout wiring only
 
 src/
   api/                  request client + API zod schemas + contract parsing helpers
+  config/               runtime config + deep-link helpers
   features/             feature registry + extension module hooks
   hooks/                TanStack Query hooks + auth hooks
   components/
@@ -83,6 +87,37 @@ src/
   styles/               tokens.ts
   lib/                  Shared utility and form schemas
 ```
+
+## Image Primitive Baseline
+
+Use `Image` from `src/components/ui/image.tsx` for app images:
+- supports remote `uri` or explicit `source`
+- default blurhash placeholder (or custom `blurhash`)
+- error fallback surface/text
+
+This should be the default image surface for new screens unless there is a specific reason to use raw `expo-image`.
+
+## Social Auth Stubs (Apple + Google)
+
+Auth screens include:
+- `Continue with Apple (Stub)`
+- `Continue with Google (Stub)`
+
+These are intentionally non-production placeholders to preserve starter structure and Apple compliance expectations.
+Complete wiring at product integration time via Clerk OAuth strategy setup.
+
+## Deep Linking Baseline
+
+Baseline pieces:
+- `src/config/deep-linking.ts` (`createAppDeepLink`, handler registry)
+- `src/hooks/use-deep-linking.ts` (initial URL + runtime URL listener)
+- wired in `app/_layout.tsx`
+
+Current baseline scope:
+- scheme-aware link creation (`ember://...`)
+- initial URL + URL event extension points
+
+Product-level implementations should attach behavior via `setDeepLinkHandlers(...)`.
 
 ## Data-Boundary Pattern (Required)
 
@@ -172,6 +207,7 @@ Current focus:
 - feature registry and extension baseline helpers
 - offline-awareness mapping logic
 - notification listener readiness logic
+- deep-link config helper behavior
 
 Intentionally not a goal:
 - large visual snapshot suites

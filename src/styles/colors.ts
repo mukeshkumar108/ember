@@ -11,8 +11,6 @@
  *   border / overlay                                        — chrome
  */
 
-export type Colors = typeof lightColors;
-
 export const lightColors = {
   // ── Surfaces ──────────────────────────────────────────────────────────────
   /** Primary app background (white) */
@@ -46,6 +44,9 @@ export const lightColors = {
   overlay: 'rgba(0,0,0,0.40)',
 } as const;
 
+export type ColorName = keyof typeof lightColors;
+export type Colors = Record<ColorName, string>;
+
 export const darkColors = {
   // ── Surfaces ──────────────────────────────────────────────────────────────
   /** OLED-friendly true black — matches iOS system background dark */
@@ -72,4 +73,4 @@ export const darkColors = {
   // ── Chrome ────────────────────────────────────────────────────────────────
   border: '#38383A',
   overlay: 'rgba(0,0,0,0.60)',
-} as const;
+} as const satisfies Colors;

@@ -1,8 +1,8 @@
 # Project Status Report
 
 **Project**: Ember  
-**Checkpoint**: Visual System Completion (2026-04-17)  
-**Maturity**: 1.7.0 foundation
+**Checkpoint**: Final Baseline Completion (2026-04-18)  
+**Maturity**: 1.8.0 foundation
 
 ## What Is Solid
 - Public/protected routing and Clerk auth are wired.
@@ -21,6 +21,9 @@
 - **Form foundation is implemented**: `react-hook-form` + `zod` with Controller bindings for all primitives; `src/lib/schemas.ts` shared schemas; auth and settings screens refactored.
 - **Dark mode is fully implemented**: `ThemeProvider` + `useTheme()` pattern applied to all components, overlays, feedback states, tab bar, and banners; system color scheme respected automatically.
 - **Inter font is integrated**: `@expo-google-fonts/inter` loaded at startup via `useFonts()` + SplashScreen; all components use `tokens.typography.fonts.*` for consistent weight/style.
+- **Image primitive baseline is implemented**: `src/components/ui/image.tsx` with remote source, placeholder, and error fallback.
+- **Social auth stubs are present**: Apple and Google buttons/hooks are visible but explicitly not production-wired.
+- **Deep-linking baseline is implemented**: helper + listener hook with extension handlers for product-level routing.
 
 ## API Boundary Strategy (Current)
 - Backend payloads are requested as `unknown`.
@@ -37,6 +40,8 @@
 - Advanced overlay orchestration (stacking/queue manager).
 - Push delivery workflows and notification-center UX.
 - Offline-first sync queues, local mutation replay, and conflict resolution.
+- Full social OAuth provider wiring (credentials, callback URLs, Clerk OAuth strategy setup).
+- Product-specific deep-link route actions (magic-link completion, push route mapping).
 - Product-specific onboarding/account behaviors.
 
 ## Active Assumptions
@@ -51,6 +56,7 @@
 - Expo Go/simulator environments may not provide a usable push token; Ember now reports this as skipped registration.
 - Device registration behavior is intentionally not deeply unit-tested due environment complexity; covered primarily through contract tests and runtime status visibility.
 - Offline status cannot guarantee backend reachability in every captive/network-edge case; it is a practical baseline signal.
+- Social auth stubs are non-functional by design until product-level OAuth integration is completed.
 
 ## Immediate Next Task
-Add one thin product-level module example (behind registry key) to demonstrate end-to-end feature enable/disable workflow without adding domain logic. Alternatively: update playground to exercise dark mode and font rendering across all primitives.
+Replace social auth stubs with fully wired Clerk OAuth flows for Apple/Google in product bootstrap projects.

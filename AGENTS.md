@@ -28,6 +28,11 @@ It is not a product and should stay domain-agnostic.
 2. Prefer adding optional capability behind a feature key before wiring product behavior.
 3. Do not build a plugin framework; keep feature registry static and explicit.
 
+## Auth Stub Rules
+1. Social auth buttons (Apple/Google) currently represent starter stubs.
+2. Keep Apple present when social auth UI is shown to satisfy Apple sign-in expectations.
+3. Do not present stubs as fully wired authentication.
+
 ## UI and Interaction Rules
 1. Use tokens from `src/styles/tokens.ts` for spacing, radius, animation; no ad-hoc values.
 2. **Colors must come from `useTheme().colors`** — never read `tokens.colors.*` in components. `tokens.colors` is a light-palette alias for backwards compatibility only.
@@ -63,6 +68,15 @@ It is not a product and should stay domain-agnostic.
 2. Use `useNetworkStatus` for network awareness and keep banner messaging minimal.
 3. Use notification listener extension handlers (`src/features/notifications.ts`) for future product behavior.
 4. Do not add product-specific notification routing in starter baseline.
+
+## Deep Linking Rules
+1. Use `src/config/deep-linking.ts` as the baseline deep-link helper and handler registry.
+2. Keep deep-link baseline generic (initial URL + URL listener). Product flows must attach handlers explicitly.
+3. Avoid hardcoded product route assumptions in starter-level deep-link wiring.
+
+## Image Primitive Rules
+1. Prefer `src/components/ui/image.tsx` over raw image usage for remote images.
+2. Keep fallback behavior simple (placeholder + error fallback) and reusable.
 
 ## Out of Scope
 - Product-specific features

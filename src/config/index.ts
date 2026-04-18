@@ -23,3 +23,5 @@ if (!CLERK_PUBLISHABLE_KEY) {
     "Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. Please set it in your environment.",
   );
 }
+
+export * from "./deep-linking";

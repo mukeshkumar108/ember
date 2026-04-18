@@ -152,3 +152,26 @@ Expected coverage:
 - Extension point:
   - `setNotificationEventHandlers({ onForegroundNotification, onNotificationResponse })`
   - define product behavior in the consuming app/module layer.
+
+## 14) Image Primitive Strategy
+
+- Use `Image` from `src/components/ui/image.tsx` for remote images.
+- Prefer passing `uri` for simple remote sources.
+- Optional `blurhash` can be passed when available.
+- Keep fallback simple (`fallbackText` + themed fallback surface). Do not create product-specific image wrappers in the starter.
+
+## 15) Social Auth Stub Strategy
+
+- Current social buttons are intentional stubs only (Apple + Google).
+- Hooks: `src/hooks/auth/use-social-auth-stubs.ts`.
+- Production wiring is product-level work:
+  - configure OAuth providers in Clerk
+  - wire callback/deep-link handling
+  - replace stub errors with real sign-in actions
+
+## 16) Deep Linking Strategy
+
+- Baseline helpers live in `src/config/deep-linking.ts`.
+- Runtime listener hook: `src/hooks/use-deep-linking.ts` (wired in `app/_layout.tsx`).
+- Use `setDeepLinkHandlers(...)` to plug in product-specific behavior.
+- Keep starter-level deep linking generic; avoid embedding product routes in foundation code.

@@ -8,5 +8,7 @@ export * from './use-reduce-motion';
 export * from './use-refresh-control';
 export * from './use-network-status';
 export * from './use-notification-listeners';
+export * from './use-deep-linking';
 export * from './auth/use-email-sign-in';
 export * from './auth/use-email-sign-up';
+export * from './auth/use-social-auth-stubs';

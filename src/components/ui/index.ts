@@ -7,6 +7,7 @@ export * from './confirm-modal';
 export * from './divider';
 export * from './form-screen';
 export * from './icon';
+export * from './image';
 export * from './input';
 export * from './list-item';
 export * from './screen';

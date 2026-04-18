@@ -39,7 +39,6 @@ export function Input({ label, error, hint, containerStyle, style, onFocus, onBl
         accessibilityLabel={label}
         accessibilityHint={hint}
         accessibilityValue={error ? { text: error } : undefined}
-        accessibilityInvalid={!!error}
         style={[
           staticStyles.input,
           { borderColor, color: colors.foreground, backgroundColor: colors.background },
